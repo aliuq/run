@@ -303,5 +303,98 @@ is_debian() {
   [ -f /etc/os-release ] && grep -q "ID=debian" /etc/os-release
 }
 
+# 网络连通性检查
+check_network() {
+  if ! command_exists curl; then
+    red "Error: curl is not installed or not in PATH"
+    exit 1
+  fi
+
+  local name=${1:-github}
+  local limit=${2:-2}
+  local timestamp=$(date +%s) # 时间戳
+
+  case "$name" in
+    [gG][oO][oO][gG][lL][eE])
+      url="https://www.google.com/favicon.ico?_=$timestamp"
+      ;;
+    [gG][iI][tT][hH][uU][bB])
+      url="https://github.com/favicon.ico?_=$timestamp"
+      ;;
+    [cC][lL][oO][uU][dD][fF][lL][aA][rR][eE])
+      url="https://www.cloudflare.com/favicon.ico?_=$timestamp"
+      ;;
+  esac
+
+  start_time=$(date +%s%3N)
+  local result=$(curl -s -m 1 -o /dev/null -w "%{http_code}" "$url")
+  local end_time=$(date +%s%3N)
+  local elapsed_time=$((end_time - start_time))
+  local exit_code=$?
+
+  if [ $exit_code -ne 0 ]; then
+    red "❌ ${elapsed_time}ms"
+    return 1
+  fi
+
+  if [ $result -eq 200 ]; then
+    green "✅ ${elapsed_time}ms"
+    return 0
+  else
+    red "⚠️ ${elapsed_time}ms"
+    return 1
+  fi
+}
+
+set_network() {
+  GITHUB_URL=${GITHUB_URL:-"https://github.com"}
+  GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
+  GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://github.githubassets.com"}
+  GITHUB_GIST_URL=${GITHUB_GIST_URL:-"https://gist.github.com"}
+  GITHUB_AVATAR_URL=${GITHUB_AVATAR_URL:-"https://avatars.githubusercontent.com"}
+  GITHUB_MEDIA_URL=${GITHUB_MEDIA_URL:-"https://media.githubusercontent.com"}
+  GITHUB_OBJECTS_URL=${GITHUB_OBJECTS_URL:-"https://objects.githubusercontent.com"}
+  GITHUB_CODELOAD_URL=${GITHUB_CODELOAD_URL:-"https://codeload.github.com"}
+
+  if ! check_network >/dev/null 2>&1; then
+    GITHUB_URL="https://hub.llll.host"
+    GITHUB_RAW_URL="https://raw.llll.host"
+    GITHUB_ASSETS_URL="https://assets.llll.host"
+    GITHUB_GIST_URL="https://gist.llll.host"
+    GITHUB_AVATAR_URL="https://avatars.llll.host"
+    GITHUB_MEDIA_URL="https://media.llll.host"
+    GITHUB_OBJECTS_URL="https://object.llll.host"
+    GITHUB_CODELOAD_URL="https://download.llll.host"
+  fi
+}
+
+is_wsl() {
+  case "$(uname -r)" in
+    *microsoft* ) true ;; # WSL 2
+    *Microsoft* ) true ;; # WSL 1
+    * ) false;;
+  esac
+}
+
+is_darwin() {
+  case "$(uname -s)" in
+    *darwin* ) true ;;
+    *Darwin* ) true ;;
+    * ) false;;
+  esac
+}
+
+get_distribution() {
+  lsb_dist=""
+  if [ -r /etc/os-release ]; then
+    lsb_dist="$(. /etc/os-release && echo "$ID")"
+  fi
+  echo "$lsb_dist"
+}
+
 print_arg_warn
 set_var
+set_network
+
+lsb_dist=$(get_distribution)
+lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
