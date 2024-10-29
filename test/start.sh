@@ -4,7 +4,7 @@
 #
 
 # . /workspaces/run/helper.sh
-source <(curl -sSL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/helper.sh?token=GHSAT0AAAAAACYX6PRBQQV2SLDJBY5ES4UQZZAFIDQ)
+source <(curl -sSL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/helper.sh?token=GHSAT0AAAAAACYX6PRAPVPBLPO4UGEP3GMIZZAFLXA)
 
 preset=""
 while [ $# -gt 0 ]; do
