@@ -120,6 +120,7 @@ install_deps() {
   run "mkdir -p ~/.config"
   if [ ! -f ~/.config/starship.toml ]; then
     run "curl -fsSL $GITHUB_RAW_URL/aliuq/run/master/files/starship.toml >~/.config/starship.toml"
+    info "✔ starship 配置文件已生成"
   fi
 }
 
