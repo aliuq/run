@@ -84,8 +84,7 @@ install_zsh() {
 install_zimfw() {
   log "安装 zimfw"
   if $is_remote; then
-    # sh <(curl -fsSL $BASE_URL/feat/zimfw-install.sh)
-    echo 1
+    zsh <(curl -fsSL $BASE_URL/feat/zimfw-install.sh)
   else
     zsh "$BASE_URL/feat/zimfw-install.sh"
   fi
