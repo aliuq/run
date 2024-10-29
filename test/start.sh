@@ -42,6 +42,11 @@ fi
 
 verbose=true
 
+do_prepare() {
+  [ ! command_exists curl ] && run "apt install -y curl"
+  [ ! command_exists jq ] && run "apt install -y jq"
+}
+
 echo_info() {
   # 获取完整的系统信息
   if [ -f /etc/os-release ]; then
@@ -142,6 +147,7 @@ echo_commands() {
   esac
 }
 
+do_prepare
 echo_info
 echo_commands
 
