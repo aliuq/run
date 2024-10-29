@@ -3,19 +3,23 @@
 # Usage:
 #
 
-# . /workspaces/run/helper.sh
-source <(curl -sSL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/helper.sh)
+BASE_URL=${BASE_URL:-"https://raw.githubusercontent.com/aliuq/run/refs/heads/master"}
+
+if echo "$BASE_URL" | grep -qE '^https?://'; then
+  . /dev/stdin <<EOF
+$(curl -sSL $BASE_URL/helper.sh)
+$(curl -sSL $BASE_URL/mods/system.sh)
+EOF
+else
+  . $BASE_URL/helper.sh
+  . $BASE_URL/mods/system.sh
+fi
 
 preset=""
 while [ $# -gt 0 ]; do
   case "$1" in
-  --preset)
-    preset="$2"
-    shift
-    ;;
-  --*)
-    echo "Illegal option $1"
-    ;;
+  --preset) preset="$2"; shift ;;
+  --*) echo "Illegal option $1" ;;
   esac
   shift $(($# > 0 ? 1 : 0))
 done
@@ -88,5 +92,37 @@ echo_info() {
   fi
 }
 
-echo_info
+echo_commands() {
+    # printf "\n------------------- $(magenta "系统") -------------------\n"
+    # printf "$(green "1.") 更新软件包    $(green "2.") 修改主机名    $(green "q.") 退出\n"
+    # printf "$(green "3.") 修改 ssh 端口\n"
 
+    echo
+    echo
+    echo $(magenta "系统")
+    echo "--------------------------------------------------"
+    echo "$(green "1.") 更新软件包        $(green "2.") 修改主机名        $(green "q.") 退出"
+    echo "$(green "3.") 修改 ssh 端口"
+    echo
+
+    if [ -n "$preset" ]; then
+      command_index=$preset
+      info "==> 选择了预设值: $(cyan $preset)"
+      echo
+    else
+      command_index=$(read_input "$(magenta "=> 请输入要执行的命令编号:") ")
+    fi
+
+    case $command_index in
+      1) update_packages ;;
+      2) change_hostname ;;
+      [qQ] | [eE][xX][iI][tT] | [qQ][uU][iI][tT]) info "Exit"; exit 0 ;;
+      *) 
+        red "未知命令: $command_index"
+        exit 1
+      ;;
+    esac
+}
+
+echo_info
+echo_commands
