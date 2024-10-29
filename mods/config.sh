@@ -86,9 +86,9 @@ install_zimfw() {
 
   if $is_remote; then
     if $dry_run; then
-      run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
+      run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
     else
-      zsh "$BASE_URL/feat/zimfw-install.sh"
+      curl -sL "$BASE_URL/feat/zimfw-install.sh" | zsh
     fi
   else
     if $dry_run; then
