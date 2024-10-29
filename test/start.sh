@@ -88,7 +88,7 @@ echo_info() {
   echo "-------------------------------------------------------"
   printf "仓库地址      : %s\n" $(cyan_bright "https://github.com/aliuq/run")
   printf "默认终端      : $(cyan_bright "$SHELL")\n"
-  printf "User/Host     : $(cyan_bright "$(whoami)")$(yellow "@")$(cyan_bright "$HOSTNAME")\n"
+  printf "User/Host     : $(cyan_bright "$(whoami)")$(yellow "@")$(cyan_bright "$(hostname)")\n"
   printf "IP 地址       : $(hostname -I) / $(cyan_bright "$public_ip")\n"
   printf "系统在线时间  : $(cyan_bright "$uptime_info")\n"
   printf "连通性检查    : Github $(cyan_bright "$(check_network github)") / Google $(cyan_bright "$(check_network google)") / Cloudflare $(cyan_bright "$(check_network cloudflare)")\n"
