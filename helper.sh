@@ -316,15 +316,15 @@ check_network() {
   local timestamp=$(date +%s) # 时间戳
 
   case "$name" in
-    [gG][oO][oO][gG][lL][eE])
-      url="https://www.google.com/favicon.ico?_=$timestamp"
-      ;;
-    [gG][iI][tT][hH][uU][bB])
-      url="https://github.com/favicon.ico?_=$timestamp"
-      ;;
-    [cC][lL][oO][uU][dD][fF][lL][aA][rR][eE])
-      url="https://www.cloudflare.com/favicon.ico?_=$timestamp"
-      ;;
+  [gG][oO][oO][gG][lL][eE])
+    url="https://www.google.com/favicon.ico?_=$timestamp"
+    ;;
+  [gG][iI][tT][hH][uU][bB])
+    url="https://github.com/favicon.ico?_=$timestamp"
+    ;;
+  [cC][lL][oO][uU][dD][fF][lL][aA][rR][eE])
+    url="https://www.cloudflare.com/favicon.ico?_=$timestamp"
+    ;;
   esac
 
   start_time=$(date +%s%3N)
@@ -371,17 +371,17 @@ set_network() {
 
 is_wsl() {
   case "$(uname -r)" in
-    *microsoft* ) true ;; # WSL 2
-    *Microsoft* ) true ;; # WSL 1
-    * ) false;;
+  *microsoft*) true ;; # WSL 2
+  *Microsoft*) true ;; # WSL 1
+  *) false ;;
   esac
 }
 
 is_darwin() {
   case "$(uname -s)" in
-    *darwin* ) true ;;
-    *Darwin* ) true ;;
-    * ) false;;
+  *darwin*) true ;;
+  *Darwin*) true ;;
+  *) false ;;
   esac
 }
 
