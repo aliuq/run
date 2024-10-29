@@ -106,6 +106,14 @@ install_deps() {
   else
     info "✔ zoxide 已安装"
   fi
+
+  # 安装 starship
+  if ! command_exists starship; then
+    run "curl -sS https://starship.rs/install.sh | sh"
+    green "==> starship 安装成功"
+  else
+    info "✔ starship 已安装"
+  fi
 }
 
 # 安装 zimfw
