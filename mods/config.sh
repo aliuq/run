@@ -102,7 +102,7 @@ install_deps() {
   # 安装 zoxide
   if ! command_exists zoxide; then
     local zoxide_url="https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
-    if $dry_run; then run "curl -sSfL $zoxide_url | sh"; else curl -sSfL $zoxide_url | sh; fi
+    run "curl -sSfL $zoxide_url | sh -s -- --bin-dir /usr/local/bin"
     green "==> zoxide 安装成功"
   else
     info "✔ zoxide 已安装"
