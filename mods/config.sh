@@ -85,19 +85,9 @@ install_zimfw() {
   log "安装 zimfw"
 
   if $is_remote; then
-    if $dry_run; then
-      run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
-    else
-      info "复制以下命令到终端执行"
-      green "  curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
-    fi
+    run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
   else
-    if $dry_run; then
-      run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
-    else
-      info "复制以下命令到终端执行"
-      green "\n  zsh \"$BASE_URL/feat/zimfw-install.sh\"\n"
-    fi
+    run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
   fi
 }
 

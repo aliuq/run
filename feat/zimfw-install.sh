@@ -99,7 +99,7 @@ done
 declare -A cache
 
 check_network() {
-  if ! command_exists curl; then
+  if ! command -v curl; then
     red "Error: curl is not installed or not in PATH"
     exit 1
   fi
@@ -114,28 +114,22 @@ check_network() {
     ;;
   esac
 
-  start_time=$(date +%s%3N)
   local result=$(curl -s -m 1 -o /dev/null -w "%{http_code}" "$url")
-  local end_time=$(date +%s%3N)
-  local elapsed_time=$((end_time - start_time))
   local exit_code=$?
 
   if [ $exit_code -ne 0 ]; then
-    red "❌ ${elapsed_time}ms"
     return 1
   fi
 
   if [ $result -eq 200 ]; then
-    green "✅ ${elapsed_time}ms"
     return 0
   else
-    red "⚠️ ${elapsed_time}ms"
     return 1
   fi
 }
 
 # GFW proxy
-if check_network >/dev/null 2>&1; then
+if check_network; then
   GITHUB_URL="https://github.com/"
   ZMODULE_GITHUB=""
 else
