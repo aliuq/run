@@ -278,6 +278,7 @@ read_from_options_show() {
 # $3: 选项列表
 read_from_options() {
   option=$(read_input "$1(默认 $2): " "$2")
+  use_index=${4:-false}
 
   IFS="|"
   index=1
@@ -285,7 +286,7 @@ read_from_options() {
     if [ "$option" = "$index" ]; then
       IFS=":"
       val=$(echo "$item" | cut -d':' -f1)
-      echo "$val"
+      if $use_index; then echo "$index"; else echo "$val"; fi
       break
     fi
     index=$(($index + 1))

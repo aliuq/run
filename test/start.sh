@@ -9,10 +9,12 @@ if echo "$BASE_URL" | grep -qE '^https?://'; then
   . /dev/stdin <<EOF
 $(curl -sSL $BASE_URL/helper.sh)
 $(curl -sSL $BASE_URL/mods/system.sh)
+$(curl -sSL $BASE_URL/mods/config.sh)
 EOF
 else
   . $BASE_URL/helper.sh
   . $BASE_URL/mods/system.sh
+  . $BASE_URL/mods/config.sh
 fi
 
 preset=""
@@ -104,6 +106,12 @@ echo_commands() {
     echo "$(green "1.") 更新软件包        $(green "2.") 修改主机名        $(green "q.") 退出"
     echo "$(green "3.") 修改 ssh 端口"
     echo
+    echo $(magenta "配置")
+    echo "--------------------------------------------------"
+    echo "$(green "100.") 安装 zsh            $(green "101.") 安装 oh-my-zsh            $(green "102.") 覆盖 ~/.zshrc"
+    echo "$(green "103.") 安装 starship       $(green "104.") 添加 waketime             $(green "105.") 添加 docker 镜像"
+    echo "$(green "106.") 生成 ssh 密钥       $(green "107.") 安装 zsh"
+    echo
 
     if [ -n "$preset" ]; then
       command_index=$preset
@@ -116,6 +124,7 @@ echo_commands() {
     case $command_index in
       1) update_packages ;;
       2) change_hostname ;;
+      107) install_zsh ;;
       [qQ] | [eE][xX][iI][tT] | [qQ][uU][iI][tT]) info "Exit"; exit 0 ;;
       *) 
         red "未知命令: $command_index"
@@ -126,3 +135,5 @@ echo_commands() {
 
 echo_info
 echo_commands
+
+# BASE_URL=/workspaces/run/ sh test/start.sh --preset 107
