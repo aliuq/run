@@ -190,14 +190,6 @@ zmodule ${ZMODULE_GITHUB}zimfw/utility
 # zmodule ${ZMODULE_GITHUB}zimfw/fzf
 # zmodule ${ZMODULE_GITHUB}joke/zim-starship
 # zmodule ${ZMODULE_GITHUB}kiesman99/zim-zoxide
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/git
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/eza
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/fzf
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/starship
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/zoxide
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/universalarchive
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/docker
-zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/docker-compose
 
 #
 # Prompt
@@ -233,6 +225,18 @@ zmodule ${ZMODULE_GITHUB}zsh-users/zsh-history-substring-search
 # Fish-like autosuggestions for Zsh.
 zmodule ${ZMODULE_GITHUB}zsh-users/zsh-autosuggestions
 # }}} End configuration added by Zim install
+
+# oh-my-zsh
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --source lib/functions.zsh
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --source lib/completion.zsh
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/git
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/eza
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/fzf
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/starship
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/zoxide
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/universalarchive
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/docker
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/docker-compose
 "
 ZTEMPLATES[zshrc]="# Start configuration added by Zim install {{{
 #
