@@ -116,6 +116,10 @@ install_deps() {
   else
     info "✔ starship 已安装"
   fi
+  run "mkdir -p ~/.config"
+  if [ -f ~/.config/starship.toml ]; then
+    run "curl -fsSL $GITHUB_RAW_URL/aliuq/run/master/files/starship.toml >~/.config/starship.toml"
+  fi
 }
 
 # 安装 zimfw

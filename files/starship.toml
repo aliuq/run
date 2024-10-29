@@ -1,0 +1,50 @@
+# 设置配置范例，开启编辑器的自动补全
+"$schema" = 'https://starship.rs/config-schema.json'
+
+[cmd_duration]
+show_milliseconds = true
+show_notifications = true
+
+[localip]
+ssh_only = false
+format = "[$localipv4](bold yellow) "
+disabled = false
+
+[memory_usage]
+disabled = false
+threshold = -1
+format = "[${ram} ${ram_pct}]($style) "
+style = "bold dimmed green"
+
+[time]
+disabled = false
+format = '[\[ $time \]]($style) '
+time_format = "%T"
+utc_time_offset = "+8"
+style = "bold dimmed blue"
+
+[hostname]
+ssh_only = false
+format = '[$ssh_symbol$hostname](bold dimmed green) '
+disabled = false
+
+[username]
+style_user = "bold yellow"
+style_root = "bold red"
+show_always = true
+disabled = false
+
+[shell]
+style = 'cyan bold'
+format = '[$indicator]($style) '
+fish_indicator = '󰈺 '
+powershell_indicator = '_'
+disabled = false
+
+[env_var.CLOUD_SERVER]
+style = 'bold yellow'
+format = "[$env_value]($style) "
+
+[env_var.CLOUD_SERVER_REGION]
+style = 'bold yellow'
+format = "[$env_value]($style) "
