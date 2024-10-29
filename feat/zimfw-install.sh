@@ -229,6 +229,7 @@ zmodule ${ZMODULE_GITHUB}zsh-users/zsh-autosuggestions
 # oh-my-zsh
 zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --source lib/functions.zsh
 zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --source lib/completion.zsh
+zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --source lib/git.zsh
 zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/git
 zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/eza
 zmodule ${ZMODULE_GITHUB}ohmyzsh/ohmyzsh --root plugins/fzf
