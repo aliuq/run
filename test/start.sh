@@ -59,6 +59,7 @@ echo_info() {
   # 系统: Debian GNU/Linux 10 (buster) (x86_64)
   # 架构: x86_64
   # 内核: 5.4.0-80-generic
+  public_ip=$(curl -sL https://ip.llll.host)
   ip_info=$(curl -sL https://myip.ipip.net/json | jq -r '.data.location | [.[0], .[1], .[2], .[3], .[4]] | @csv' | sed 's/,/ /g' | sed 's/"//g')
 
   echo
@@ -68,7 +69,7 @@ echo_info() {
   printf "仓库地址      : %s\n" $(cyan_bright "https://github.com/aliuq/run")
   printf "默认终端      : %s\n" $(cyan_bright "$SHELL")
   printf "User/Host     : %s\n" $(cyan_bright "$(whoami)@$HOSTNAME")
-  printf "IP 地址       : $(hostname -I) / $(cyan_bright "$(curl -sL https://ip.llll.host)")\n"
+  printf "IP 地址       : $(hostname -I) / $(cyan_bright "$public_ip")\n"
   printf "系统在线时间  : $(cyan_bright "$uptime_info")\n"
   printf "连通性检查    : Github $(cyan_bright "$(check_network github)") / Google $(cyan_bright "$(check_network google)") / Cloudflare $(cyan_bright "$(check_network cloudflare)")\n"
   printf "网络          : $(cyan_bright "$ip_info")\n"
