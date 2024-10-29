@@ -88,8 +88,7 @@ install_zimfw() {
     if $dry_run; then
       run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
     else
-      # curl -sL "$BASE_URL/feat/zimfw-install.sh" | zsh
-      zsh <(curl -sL "$BASE_URL/feat/zimfw-install.sh")
+      curl -sL "$BASE_URL/feat/zimfw-install.sh" | zsh
     fi
   else
     if $dry_run; then
