@@ -23,8 +23,6 @@ else
   . $BASE_URL/mods/config.sh
 fi
 
-info "==> BASE_URL: $(cyan $BASE_URL)"
-
 preset=""
 while [ $# -gt 0 ]; do
   case "$1" in
