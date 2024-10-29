@@ -42,8 +42,8 @@ fi
 
 do_prepare() {
   info "==> 准备环境"
-  if command_exists curl; then info "✔ curl 已存在"; else run "apt install -y curl"; fi
-  if command_exists jq; then info "✔ jq 已存在"; else run "apt install -y jq"; fi
+  if command_exists curl; then info "✔ curl 已安装"; else run "apt install -y curl"; fi
+  if command_exists jq; then info "✔ jq 已安装"; else run "apt install -y jq"; fi
   info "==> 环境准备完毕"
 }
 

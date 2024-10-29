@@ -55,10 +55,10 @@ install_zsh_from_ubuntu() {
 install_zsh() {
   log "安装 zsh"
 
-  # if command_exists zsh; then
-  #   yellow "==> zsh 已安装, Skipping...\n"
-  #   return
-  # fi
+  if command_exists zsh; then
+    yellow "==> zsh 已安装, Skipping...\n"
+    return
+  fi
 
   if $force || read_confirm "是否安装 zsh? (y/n): "; then
     params="包管理器:推荐|源码"
@@ -80,9 +80,39 @@ install_zsh() {
   fi
 }
 
+install_deps() {
+  log "安装依赖 (eza, fzf, zoxide)"
+  # 安装 eza
+  if ! command_exists eza; then
+    run "curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz"
+    run "chmod +x eza && chown root:root eza && mv eza /usr/local/bin/eza"
+    green "==> eza 安装成功"
+  else
+    info "✔ eza 已安装"
+  fi
+
+  # 安装 fzf
+  if ! command_exists fzf; then
+    run "apt update -y && apt install -y fzf"
+    green "==> fzf 安装成功"
+  else
+    info "✔ fzf 已安装"
+  fi
+
+  # 安装 zoxide
+  if ! command_exists zoxide; then
+    run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+    green "==> zoxide 安装成功"
+  else
+    info "✔ zoxide 已安装"
+  fi
+}
+
 # 安装 zimfw
 install_zimfw() {
   log "安装 zimfw"
+
+  install_deps
 
   if [ -d "$HOME/.zim" ]; then
     yellow "==> zimfw 已安装, Skipping...\n"
