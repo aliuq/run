@@ -40,11 +40,11 @@ if $help; then
   exit 0
 fi
 
-verbose=true
-
 do_prepare() {
-  [ ! command_exists curl ] && run "apt install -y curl"
-  [ ! command_exists jq ] && run "apt install -y jq"
+  info "==> 准备环境"
+  if command_exists curl; then info "✔ curl 已存在"; else run "apt install -y curl"; fi
+  if command_exists jq; then info "✔ jq 已存在"; else run "apt install -y jq"; fi
+  info "==> 环境准备完毕"
 }
 
 echo_info() {
@@ -83,7 +83,7 @@ echo_info() {
   ip_info=$(curl -sL https://myip.ipip.net/json | jq -r '.data.location | [.[0], .[1], .[2], .[3], .[4]] | @csv' | sed 's/,/ /g' | sed 's/"//g')
 
   echo
-  # clear
+  clear
   echo $(cyan "$(bold "RunShell by AliuQ")")
   echo "-------------------------------------------------------"
   printf "仓库地址      : %s\n" $(cyan_bright "https://github.com/aliuq/run")

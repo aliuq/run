@@ -45,32 +45,17 @@ remaining_args=""
 
 for arg in "$@"; do
   case "$arg" in
-  --verbose | -v)
-    verbose=true
-    ;;
-  --force | -[yY])
-    force=true
-    ;;
-  --dry-run)
-    dry_run=true
-    ;;
-  --help | -[hH])
-    help=true
-    ;;
-  *)
-    remaining_args="$remaining_args $arg"
-    ;;
+  --verbose | -v) verbose=true ;;
+  --verbose=*) verbose="${arg#*=}" ;;
+  --force | -[yY]) force=true ;;
+  --dry-run) dry_run=true ;;
+  --help | -[hH]) help=true ;;
+  *) remaining_args="$remaining_args $arg" ;;
   esac
 done
 
 remaining_args=$(echo "$remaining_args" | sed 's/^ *//')
 set -- $remaining_args
-
-print_arg_warn() {
-  if $verbose; then
-    info "Param $(yellow --verbose/-v/--force/-y/--dry-run/--help) will be ignored"
-  fi
-}
 
 # =============== Colors ===============
 init() { printf "$1$3$2\n"; }
@@ -146,6 +131,12 @@ log() {
 }
 info() {
   printf "$1\n"
+}
+
+debug_info() {
+  if $verbose; then
+    info "==> $1"
+  fi
 }
 
 command_exists() {
@@ -393,7 +384,6 @@ get_distribution() {
   echo "$lsb_dist"
 }
 
-print_arg_warn
 set_var
 set_network
 
