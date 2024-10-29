@@ -99,7 +99,7 @@ done
 declare -A cache
 
 check_network() {
-  if ! command -v curl; then
+  if ! command -v curl >/dev/null 2>&1; then
     red "Error: curl is not installed or not in PATH"
     exit 1
   fi
