@@ -86,7 +86,7 @@ install_zimfw() {
 
   if $is_remote; then
     local cmd1="curl -fsSL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
-    if $dry_run; then run "$cmd1"; else zsh -c "$cmd1"; fi
+    if $dry_run; then run "$cmd1"; else zsh "$cmd1"; fi
   else
     local cmd2="zsh \"$BASE_URL/feat/zimfw-install.sh\""
     if $dry_run; then run "$cmd2"; else zsh -c "$cmd2"; fi
