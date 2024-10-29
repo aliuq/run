@@ -88,13 +88,15 @@ install_zimfw() {
     if $dry_run; then
       run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
     else
-      curl -sL "$BASE_URL/feat/zimfw-install.sh" | zsh
+      info "复制以下命令到终端执行"
+      green "  curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
     fi
   else
     if $dry_run; then
       run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
     else
-      zsh "$BASE_URL/feat/zimfw-install.sh"
+      info "复制以下命令到终端执行"
+      green "\n  zsh \"$BASE_URL/feat/zimfw-install.sh\"\n"
     fi
   fi
 }
