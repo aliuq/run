@@ -122,12 +122,6 @@ install_deps() {
     run "curl -fsSL $GITHUB_RAW_URL/aliuq/run/master/files/starship.toml >~/.config/starship.toml"
     info "✔ starship 配置文件已生成"
   fi
-
-  if [ $lsb_dist = "ubuntu" ]; then
-    [ ! -f ~/.zshenv ] && run "touch ~/.zshenv"
-    run "echo \"skip_global_compinit=1\" >> ~/.zshenv"
-    info "✔ zshenv 配置已生成"
-  fi
 }
 
 # 安装 zimfw
@@ -145,6 +139,12 @@ install_zimfw() {
     run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
   else
     run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
+  fi
+
+  if [ $lsb_dist = "ubuntu" ]; then
+    [ ! -f ~/.zshenv ] && run "touch ~/.zshenv"
+    run "echo \"skip_global_compinit=1\" >> ~/.zshenv"
+    info "✔ zshenv 配置已生成"
   fi
 }
 
