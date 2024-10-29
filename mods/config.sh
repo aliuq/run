@@ -39,7 +39,6 @@ install_zsh_from_ubuntu() {
   run "cd /tmp/zsh-$zsh_version && ./Util/preconfig && ./configure --without-tcsetpgrp --prefix=/usr --bindir=/bin && make -j 20 install.bin install.modules install.fns"
   run "cd $current_dir && rm -rf /tmp/zsh.tar.xz && rm -rf /tmp/zsh-$zsh_version"
   run "zsh --version && echo \"/bin/zsh\" | tee -a /etc/shells && echo \"/usr/bin/zsh\" | tee -a /etc/shells"
-  if $dry_run; then run "chsh -s $(which zsh)"; else chsh -s $(which zsh); fi
 }
 
 # 安装 zsh
@@ -57,10 +56,13 @@ install_zsh() {
     install_type=$(read_from_options "请选择安装方式?" "1" $params true)
     if [ $lsb_dist = "ubuntu" ]; then
       case "$install_type" in
-        1) run "apt update -y && apt install -y zsh && chsh -s $(which zsh) && echo \"Default Shell: $SHELL\"" ;;
+        1) run "apt update -y && apt install -y zsh" ;;
         2) install_zsh_from_ubuntu ;;
-        *) red "==> 错误选项" ;;
+        *) red "==> 错误选项"; exit 0 ;;
       esac
     fi
+
+    if $dry_run; then run "chsh -s $(which zsh)"; else chsh -s $(which zsh); fi
+    info "==> Default Shell: $(cyan $SHELL)"
   fi
 }
