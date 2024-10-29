@@ -85,13 +85,20 @@ install_zimfw() {
   log "安装 zimfw"
 
   if $is_remote; then
-    local cmd1="curl -fsSL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
-    if $dry_run; then run "$cmd1"; else zsh "$cmd1"; fi
+    if $dry_run; then
+      run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
+    else
+      zsh "$BASE_URL/feat/zimfw-install.sh"
+    fi
   else
-    local cmd2="zsh \"$BASE_URL/feat/zimfw-install.sh\""
-    if $dry_run; then run "$cmd2"; else zsh -c "$cmd2"; fi
+    if $dry_run; then
+      run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
+    else
+      zsh "$BASE_URL/feat/zimfw-install.sh"
+    fi
   fi
 }
 
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/test/start.sh)
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/config/refs/heads/master/run.sh)
+# sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/mods/config.sh)
