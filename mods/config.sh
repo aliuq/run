@@ -80,21 +80,16 @@ install_zsh() {
   fi
 }
 
-# # 安装 zimfw
-# install_zimfw() {
-#   log "安装 zimfw"
-#   if echo "$BASE_URL" | grep -qE '^https?://'; then
-#     is_remote=true
-#   else
-#     is_remote=false
-#   fi
+# 安装 zimfw
+install_zimfw() {
+  log "安装 zimfw"
 
-#   if $is_remote; then
-#     zsh <(curl -fsSL $BASE_URL/feat/zimfw-install.sh)
-#   else
-#     zsh "$BASE_URL/feat/zimfw-install.sh"
-#   fi
-# }
+  if $is_remote; then
+    run "curl -fsSL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
+  else
+    run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
+  fi
+}
 
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/test/start.sh)
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/config/refs/heads/master/run.sh)
