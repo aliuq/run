@@ -95,10 +95,6 @@ echo_info() {
 }
 
 echo_commands() {
-    # printf "\n------------------- $(magenta "系统") -------------------\n"
-    # printf "$(green "1.") 更新软件包    $(green "2.") 修改主机名    $(green "q.") 退出\n"
-    # printf "$(green "3.") 修改 ssh 端口\n"
-
     echo
     echo
     echo $(magenta "系统")

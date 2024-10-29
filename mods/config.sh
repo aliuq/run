@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASE_URL=${BASE_URL:-"https://raw.githubusercontent.com/aliuq/run/refs/heads/master"}
 
@@ -15,27 +15,30 @@ fi
 ## BEGIN
 
 install_zsh_from_ubuntu() {
-  zsh_version=$(read_input "请输入 zsh 版本(5.9): " 5.9)
-  mirror_url=$(read_confirm_and_input "是否使用 mirror, 结尾不要有斜杠/ (y/n): " "https://dl.llll.host")
+  local zsh_version=$(read_input "请输入 zsh 版本(5.9): " 5.9)
+  # local mirror_url=$(read_confirm_and_input "是否使用 mirror, 结尾要有斜杠/ (y/n): " "https://dl.llll.host/")
 
-  info "zsh version: $(cyan $zsh_version)"
-  info "mirror  url: $(cyan $mirror_url)"
+  info "==> zsh version: $(cyan $zsh_version)"
+  # info "== mirror  url: $(cyan $mirror_url)"
 
   if $dry_run; then run "commands_valid curl tar"; else commands_valid curl tar; fi
 
-  url="https://sourceforge.net/projects/zsh/files/zsh/$zsh_version/zsh-$zsh_version.tar.xz/download"
-  info "==> 开始解析: $url"
-  download_url=$(curl -s "$url" | grep -oP "(?<=href=\")[^\"]+(?=\")")
+  local url="https://sourceforge.net/projects/zsh/files/zsh/$zsh_version/zsh-$zsh_version.tar.xz/download"
+  echo "==> 开始解析: $url"
+  local download_url=$(curl -s "$url" | grep -oP "(?<=href=\")[^\"]+(?=\")")
   sleep 1
-  info "==> 解析后: $download_url"
-  real_url="$mirror_url$download_url"
-  info "==> 应用代理: $real_url"
+  echo "==> 解析后: $download_url"
+  download_url=$(curl -s "$download_url" | grep -oP "(?<=href=\")[^\"]+(?=\")")
+  echo "==> 解析后: $download_url"
+  local real_url="$download_url"
+  # local real_url="$mirror_url$download_url"
+  echo "==> 应用代理: $real_url"
 
   run "apt install -y curl make gcc libncurses5-dev libncursesw5-dev"
   run "curl -fsS -o /tmp/zsh.tar.xz \"$real_url\""
   run "tar -xf /tmp/zsh.tar.xz -C /tmp"
   
-  current_dir=$(pwd)
+  local current_dir=$(pwd)
   run "cd /tmp/zsh-$zsh_version && ./Util/preconfig && ./configure --without-tcsetpgrp --prefix=/usr --bindir=/bin && make -j 20 install.bin install.modules install.fns"
   run "cd $current_dir && rm -rf /tmp/zsh.tar.xz && rm -rf /tmp/zsh-$zsh_version"
   run "zsh --version && echo \"/bin/zsh\" | tee -a /etc/shells && echo \"/usr/bin/zsh\" | tee -a /etc/shells"
