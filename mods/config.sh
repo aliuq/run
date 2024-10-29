@@ -84,6 +84,11 @@ install_zsh() {
 install_zimfw() {
   log "安装 zimfw"
 
+  if [ -d "$HOME/.zim" ]; then
+    yellow "==> zimfw 已安装, Skipping...\n"
+    return
+  fi
+
   if $is_remote; then
     run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
   else
