@@ -126,7 +126,7 @@ echo_commands() {
   echo
   echo $(magenta "配置")
   echo_dividerline
-  echo "$(green "100.") 安装 zsh            $(green "101.") 安装 zimfw            $(green "102.") 覆盖 ~/.zshrc"
+  echo "$(green "100.") 安装 zsh            $(green "101.") 安装快捷工具            $(green "102.") 安装 ohmyzsh"
   echo "$(green "103.") 安装 starship       $(green "104.") 添加 waketime             $(green "105.") 添加 docker 镜像"
   echo "$(green "106.") 生成 ssh 密钥       $(green "107.") 安装 zsh"
   echo
@@ -144,7 +144,8 @@ echo_commands() {
   1) update_packages ;;
   2) change_hostname ;;
   100) install_zsh ;;
-  101) install_zimfw ;;
+  101) install_tools ;;
+  102) install_ohmyzsh ;;
   [qQ] | [eE][xX][iI][tT] | [qQ][uU][iI][tT])
     info "Exit"
     exit 0
@@ -157,6 +158,8 @@ echo_commands() {
 }
 
 # do_prepare
+set_network
+REPO_URL="$GITHUB_RAW_URL/aliuq/run/refs/heads/master"
 echo_info
 echo_commands
 

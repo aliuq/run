@@ -90,7 +90,7 @@ install_zsh() {
     esac
 
     if $dry_run; then run "chsh -s $(which zsh)"; else chsh -s $(which zsh); fi
-    if [ "$user" != 'root' ] && [ "$SHELL" != */zsh ]; then
+    if [ "$user" != 'root' ] && (echo "$SHELL" | grep -qE "/zsh$"); then
       echo
       yellow "⚠️ 当前用户为 $user，设置默认终端失败，请手动执行以下命令:"
       echo
@@ -102,71 +102,104 @@ install_zsh() {
   fi
 }
 
-install_deps() {
-  log "安装依赖 (eza, fzf, zoxide)"
+install_tools() {
+  log "准备安装工具"
+
   # 安装 eza
   if ! command_exists eza; then
     run "curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz"
     run "chmod +x eza && chown root:root eza && mv eza /usr/local/bin/eza"
-    green "==> eza 安装成功"
+    log_success "✔ eza 安装成功"
   else
-    info "✔ eza 已安装"
+    log_warn "⚠️ eza 已安装"
   fi
 
   # 安装 fzf
   if ! command_exists fzf; then
     run "apt update -y && apt install -y fzf"
-    green "==> fzf 安装成功"
+    log_success "✔ fzf 安装成功"
   else
-    info "✔ fzf 已安装"
+    log_warn "⚠️ fzf 已安装"
   fi
 
   # 安装 zoxide
   if ! command_exists zoxide; then
     local zoxide_url="https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
     run "curl -sSfL $zoxide_url | sh -s -- --bin-dir /usr/local/bin"
-    green "==> zoxide 安装成功"
+    log_success "✔ zoxide 安装成功"
   else
-    info "✔ zoxide 已安装"
+    log_warn "⚠️ zoxide 已安装"
   fi
 
   # 安装 starship
   if ! command_exists starship; then
     local starship_url="https://starship.rs/install.sh"
     if $dry_run; then run "curl -sS $starship_url | sh -s -- -y"; else curl -sS $starship_url | sh -s -- -y; fi
-    green "==> starship 安装成功"
+    log_success "✔ starship 安装成功"
   else
-    info "✔ starship 已安装"
+    log_warn "⚠️ starship 已安装"
   fi
 
+  # starship 配置文件
   run "mkdir -p ~/.config"
   if [ ! -f ~/.config/starship.toml ]; then
-    run "curl -fsSL $GITHUB_RAW_URL/aliuq/run/master/files/starship.toml >~/.config/starship.toml"
-    info "✔ starship 配置文件已生成"
+    local toml_file="$BASE_URL/files/starship.toml"
+    local dest_file="~/.config/starship.toml"
+    if $is_remote; then
+      run "curl -fsSL $toml_file > $dest_file"
+    else
+      run "cp $toml_file $dest_file"
+    fi
+    log_success "✔ starship 配置文件已生成"
+  else
+    log_warn "⚠️ starship 配置文件(~/.config/starship.toml)已存在, 如果需要重新生成请手动删除!"
   fi
+
+  log_success "工具安装完成"
 }
 
-# 安装 zimfw
-install_zimfw() {
-  log "安装 zimfw"
+# 安装 oh-my-zsh
+# Source: https://github.com/ohmyzsh/ohmyzsh
+install_ohmyzsh() {
+  log "安装 oh-my-zsh"
 
-  install_deps
+  if $force || read_confirm "是否安装 oh-my-zsh? (y/n): "; then
+    if $dry_run; then run "commands_valid curl git"; else commands_valid curl git; fi
 
-  if [ -d "$HOME/.zim" ]; then
-    yellow "==> zimfw 已安装, Skipping...\n"
-    return
-  fi
+    local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
+    local onmyzsh_url="$GITHUB_RAW_URL/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    run "curl -fsSL $onmyzsh_url | sh -s - -y"
 
-  if $is_remote; then
-    run "curl -sL \"$BASE_URL/feat/zimfw-install.sh\" | zsh"
-  else
-    run "zsh \"$BASE_URL/feat/zimfw-install.sh\""
-  fi
+    # zsh-users 社区插件，其中有几个常用的插件，值得推荐
+    local zsh_users_org="$GITHUB_URL/zsh-users"
+    # 1. https://github.com/zsh-users/zsh-autosuggestions
+    local repo_1="zsh-autosuggestions"
+    if [ ! -d "$ZSH_CUSTOM/plugins/$repo_1" ]; then
+      run "git clone $zsh_users_org/$repo_1.git $ZSH_CUSTOM/plugins/$repo_1"
+    else
+      log_warn "⚠️ $repo_1 已存在 $ZSH_CUSTOM/plugins/$repo_1"
+    fi
 
-  if [ $lsb_dist = "ubuntu" ]; then
-    [ ! -f ~/.zshenv ] && run "touch ~/.zshenv"
-    run "echo \"skip_global_compinit=1\" >> ~/.zshenv"
-    info "✔ zshenv 配置已生成"
+    local repo_2="zsh-syntax-highlighting"
+    if [ ! -d "$ZSH_CUSTOM/plugins/$repo_2" ]; then
+      run "git clone $zsh_users_org/$repo_2.git $ZSH_CUSTOM/plugins/$repo_2"
+    else
+      log_warn "⚠️ $repo_2 已存在 $ZSH_CUSTOM/plugins/$repo_2"
+    fi
+
+    local repo_3="zsh-completions"
+    if [ ! -d "$ZSH_CUSTOM/plugins/$repo_3" ]; then
+      run "git clone $zsh_users_org/$repo_3.git $ZSH_CUSTOM/plugins/$repo_3"
+    else
+      log_warn "⚠️ $repo_3 已存在 $ZSH_CUSTOM/plugins/$repo_3"
+    fi
+
+    local repo_4="zsh-history-substring-search"
+    if [ ! -d "$ZSH_CUSTOM/plugins/$repo_4" ]; then
+      run "git clone $zsh_users_org/$repo_4.git $ZSH_CUSTOM/plugins/$repo_4"
+    else
+      log_warn "⚠️ $repo_4 已存在 $ZSH_CUSTOM/plugins/$repo_4"
+    fi
   fi
 }
 
