@@ -182,6 +182,7 @@ install_ohmyzsh() {
       log_warn "⚠️ $repo_1 已存在 $ZSH_CUSTOM/plugins/$repo_1"
     fi
 
+    # 2. https://github.com/zsh-users/zsh-syntax-highlighting
     local repo_2="zsh-syntax-highlighting"
     if [ ! -d "$ZSH_CUSTOM/plugins/$repo_2" ]; then
       run "git clone $zsh_users_org/$repo_2.git $ZSH_CUSTOM/plugins/$repo_2"
@@ -190,6 +191,7 @@ install_ohmyzsh() {
       log_warn "⚠️ $repo_2 已存在 $ZSH_CUSTOM/plugins/$repo_2"
     fi
 
+    # 3. https://github.com/zsh-users/zsh-completions
     local repo_3="zsh-completions"
     if [ ! -d "$ZSH_CUSTOM/plugins/$repo_3" ]; then
       run "git clone $zsh_users_org/$repo_3.git $ZSH_CUSTOM/plugins/$repo_3"
@@ -198,6 +200,7 @@ install_ohmyzsh() {
       log_warn "⚠️ $repo_3 已存在 $ZSH_CUSTOM/plugins/$repo_3"
     fi
 
+    # 4. https://github.com/zsh-users/zsh-history-substring-search
     local repo_4="zsh-history-substring-search"
     if [ ! -d "$ZSH_CUSTOM/plugins/$repo_4" ]; then
       run "git clone $zsh_users_org/$repo_4.git $ZSH_CUSTOM/plugins/$repo_4"
