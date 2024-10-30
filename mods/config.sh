@@ -92,7 +92,8 @@ install_zsh() {
       ;;
     esac
 
-    if $dry_run; then run "chsh -s $(which zsh)"; else chsh -s $(which zsh); fi
+    # if $dry_run; then run "chsh -s $(which zsh)"; else sudo chsh -s $(which zsh); fi
+    run "sudo chsh -s $(which zsh)"
     if [ "$user" != 'root' ] && (echo "$SHELL" | grep -qE "/zsh$"); then
       echo
       yellow "⚠️ 当前用户为 $user，设置默认终端失败，请手动执行以下命令:"
