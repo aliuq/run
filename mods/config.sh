@@ -94,15 +94,15 @@ install_zsh() {
 
     # if $dry_run; then run "chsh -s $(which zsh)"; else sudo chsh -s $(which zsh); fi
     run "sudo chsh -s $(which zsh)"
-    if [ "$user" != 'root' ] && (echo "$SHELL" | grep -qE "/zsh$"); then
+    if [ "$user" != 'root' ]; then
       echo
-      yellow "⚠️ 当前用户为 $user，设置默认终端失败，请手动执行以下命令:"
+      yellow "⚠️ 当前用户为 $user，设置默认终端可能失败，请手动执行以下命令:"
       echo
       cyan "  sudo chsh -s $(which zsh)"
       echo
     fi
 
-    log "$(green "$(which zsh) 安装成功, 请重新打开终端")"
+    log "$(green "$(which zsh) 安装成功, 请重新打开终端执行后面的命令")"
   fi
 }
 
@@ -173,8 +173,6 @@ install_ohmyzsh() {
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
     local onmyzsh_url="https://install.ohmyz.sh"
     run "curl -fsSL $onmyzsh_url | sh -s - -y"
-    # run "exec zsh"
-    run "omz theme use agnoster"
     log_success "✔ oh-my-zsh 安装成功"
 
     # zsh-users 社区插件，其中有几个常用的插件，值得推荐
@@ -218,8 +216,12 @@ install_ohmyzsh() {
     log_success "✔ oh-my-zsh 插件安装完成"
 
     # 修改主题为 agnoster
-    # run "omz theme use agnoster"
-    # log_success "✔ oh-my-zsh 主题修改成功 (agnoster)"
+    run "sed -i 's/ZSH_THEME=\".*\"/ZSH_THEME=\"agnoster\"/g' ~/.zshrc"
+    log_success "✔ oh-my-zsh 主题修改完成 (agnoster)"
+
+    # 修改插件
+    run "sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search)/g' ~/.zshrc"
+    log_success "✔ oh-my-zsh 插件修改完成"
   fi
 }
 
