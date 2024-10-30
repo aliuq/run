@@ -220,7 +220,7 @@ install_ohmyzsh() {
     log_success "✔ oh-my-zsh 主题修改完成 (agnoster)"
 
     # 修改插件
-    run "sed -i 's/plugins=(git)/plugins=(git starship zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search)/g' ~/.zshrc"
+    run "sed -i 's/plugins=(git)/plugins=(git starship zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search eza fzf zoxide)/g' ~/.zshrc"
     log_success "✔ oh-my-zsh 插件修改完成"
 
   fi
