@@ -138,7 +138,7 @@ install_tools() {
   # 安装 starship
   if ! command_exists starship; then
     local starship_url="https://starship.rs/install.sh"
-    if $dry_run; then run "curl -sS $starship_url | sh -s -- -y"; else curl -sS $starship_url | sh -s -- -y; fi
+    run "curl -sS $starship_url | sh -s -- -y"
     log_success "✔ starship 安装成功"
   else
     log_warn "⚠️ starship 已安装"
