@@ -167,8 +167,9 @@ install_ohmyzsh() {
     if $dry_run; then run "commands_valid curl git"; else commands_valid curl git; fi
 
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
-    local onmyzsh_url="$GITHUB_RAW_URL/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    local onmyzsh_url="https://install.ohmyz.sh"
     run "curl -fsSL $onmyzsh_url | sh -s - -y"
+    log_success "✔ oh-my-zsh 安装成功"
 
     # zsh-users 社区插件，其中有几个常用的插件，值得推荐
     local zsh_users_org="$GITHUB_URL/zsh-users"
@@ -176,6 +177,7 @@ install_ohmyzsh() {
     local repo_1="zsh-autosuggestions"
     if [ ! -d "$ZSH_CUSTOM/plugins/$repo_1" ]; then
       run "git clone $zsh_users_org/$repo_1.git $ZSH_CUSTOM/plugins/$repo_1"
+      log_success "✔ $repo_1 添加成功"
     else
       log_warn "⚠️ $repo_1 已存在 $ZSH_CUSTOM/plugins/$repo_1"
     fi
@@ -183,6 +185,7 @@ install_ohmyzsh() {
     local repo_2="zsh-syntax-highlighting"
     if [ ! -d "$ZSH_CUSTOM/plugins/$repo_2" ]; then
       run "git clone $zsh_users_org/$repo_2.git $ZSH_CUSTOM/plugins/$repo_2"
+      log_success "✔ $repo_2 添加成功"
     else
       log_warn "⚠️ $repo_2 已存在 $ZSH_CUSTOM/plugins/$repo_2"
     fi
@@ -190,6 +193,7 @@ install_ohmyzsh() {
     local repo_3="zsh-completions"
     if [ ! -d "$ZSH_CUSTOM/plugins/$repo_3" ]; then
       run "git clone $zsh_users_org/$repo_3.git $ZSH_CUSTOM/plugins/$repo_3"
+      log_success "✔ $repo_3 添加成功"
     else
       log_warn "⚠️ $repo_3 已存在 $ZSH_CUSTOM/plugins/$repo_3"
     fi
@@ -197,9 +201,12 @@ install_ohmyzsh() {
     local repo_4="zsh-history-substring-search"
     if [ ! -d "$ZSH_CUSTOM/plugins/$repo_4" ]; then
       run "git clone $zsh_users_org/$repo_4.git $ZSH_CUSTOM/plugins/$repo_4"
+      log_success "✔ $repo_4 添加成功"
     else
       log_warn "⚠️ $repo_4 已存在 $ZSH_CUSTOM/plugins/$repo_4"
     fi
+
+    log_success "oh-my-zsh 插件安装完成"
   fi
 }
 
