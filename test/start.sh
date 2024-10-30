@@ -24,12 +24,14 @@ else
 fi
 
 preset=""
+show_system=false
 while [ $# -gt 0 ]; do
   case "$1" in
   --preset)
     preset="$2"
     shift
     ;;
+  --show-system) show_system=true ;;
   --*) echo "Illegal option $1" ;;
   esac
   shift $(($# > 0 ? 1 : 0))
@@ -42,9 +44,8 @@ fi
 
 do_prepare() {
   info "准备脚本开发环境"
-  run "apt update -y"
-  command_exists curl || run "apt install -y curl" && info "$(green '✔ curl 安装成功')"
-  command_exists jq || run "apt install -y jq" && info "$(green '✔ jq 安装成功')"
+  command_exists curl || run "apt update -y && apt install -y curl" && info "$(green '✔ curl 安装成功')"
+  command_exists jq || run "apt update -y && apt install -y jq" && info "$(green '✔ jq 安装成功')"
   info "脚本开发环境准备完毕"
 }
 
@@ -82,7 +83,7 @@ echo_info() {
   ip_info=$(curl -sL https://myip.ipip.net/json | jq -r '.data.location | [.[0], .[1], .[2], .[3], .[4]] | @csv' | sed 's/,/ /g' | sed 's/"//g')
   echo "网络          : $(cyan_bright "$ip_info")"
 
-  echo_system_info
+  $show_system && echo_system_info
 }
 
 # 显示系统信息
@@ -121,8 +122,7 @@ echo_commands() {
   echo
   echo $(magenta "系统")
   echo_dividerline
-  echo "$(green "1.") 更新软件包        $(green "2.") 修改主机名        $(green "q.") 退出"
-  echo "$(green "3.") 修改 ssh 端口"
+  echo "$(green "1.") 更新软件包        $(green "2.") 修改主机名        $(green "3.") 修改 ssh 端口        $(green "q.") 退出"
   echo
   echo $(magenta "配置")
   echo_dividerline
