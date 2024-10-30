@@ -148,6 +148,7 @@ echo_commands() {
   101) install_tools ;;
   102) install_ohmyzsh ;;
   103) generate_ssh_key ;;
+  105) add_docker_mirror ;;
   [qQ] | [eE][xX][iI][tT] | [qQ][uU][iI][tT])
     info "Exit"
     exit 0

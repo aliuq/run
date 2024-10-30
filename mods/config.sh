@@ -274,3 +274,38 @@ generate_ssh_key() {
     fi
   fi
 }
+
+# 添加 docker 镜像
+add_docker_mirror() {
+  log "添加 docker 镜像"
+
+  command_valid docker
+  if $force || read_confirm "是否添加 docker 镜像? (y/n): "; then
+    local mirror_url=$(read_input "请输入 docker 镜像地址: ")
+    [ -z "$mirror_url" ] && log_warn "镜像地址不能为空, Skipping..." && return
+
+    local docker_config="/etc/docker/daemon.json"
+    local tmp="/tmp/daemon.json"
+    if [ ! -f "$docker_config" ]; then
+      log_warn "⚠️ $docker_config 不存在"
+      run "mkdir -p /etc/docker"
+      run "touch $docker_config"
+      run "chmod 644 $docker_config"
+      log "创建配置文件: $docker_config"
+    fi
+    # 使用 jq 进行修复意外空格或者空行情况
+    if ! jq -e '.["registry-mirrors"]' $docker_config >/dev/null 2>&1; then
+      run "jq '. + {\"registry-mirrors\": [\"$mirror_url\"]}' $docker_config > $tmp && mv $tmp $docker_config"
+      log "添加镜像地址: $mirror_url"
+    else
+      run "jq '.\"registry-mirrors\" += [\"$mirror_url\"]' $docker_config > $tmp && mv $tmp $docker_config"
+      log "更新镜像地址: $mirror_url"
+    fi
+
+    log "重启 docker 服务"
+    run "systemctl restart docker"
+    log_success "✔ docker 服务重启成功"
+
+    log_success "✔ docker 镜像地址添加成功"
+  fi
+}
