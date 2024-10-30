@@ -31,6 +31,7 @@ while [ $# -gt 0 ]; do
     preset="$2"
     shift
     ;;
+  --preset=*) preset="${1#*=}" ;;
   --show-system) show_system=true ;;
   --*) echo "Illegal option $1" ;;
   esac
@@ -143,6 +144,7 @@ echo_commands() {
   case $command_index in
   1) update_packages ;;
   2) change_hostname ;;
+  3) change_ssh_port ;;
   100) install_zsh ;;
   101) install_tools ;;
   102) install_ohmyzsh ;;
