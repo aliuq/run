@@ -209,7 +209,11 @@ install_ohmyzsh() {
       log_warn "⚠️ $repo_4 已存在 $ZSH_CUSTOM/plugins/$repo_4"
     fi
 
-    log_success "oh-my-zsh 插件安装完成"
+    log_success "✔ oh-my-zsh 插件安装完成"
+
+    # 修改主题为 agnoster
+    run "omz theme use agnoster"
+    log_success "✔ oh-my-zsh 主题修改成功 (agnoster)"
   fi
 }
 
