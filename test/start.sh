@@ -157,7 +157,7 @@ echo_commands() {
   esac
 }
 
-# do_prepare
+do_prepare
 set_network
 REPO_URL="$GITHUB_RAW_URL/aliuq/run/refs/heads/master"
 echo_info
