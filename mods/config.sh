@@ -173,7 +173,7 @@ install_ohmyzsh() {
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
     local onmyzsh_url="https://install.ohmyz.sh"
     run "curl -fsSL $onmyzsh_url | sh -s - -y"
-    run "exec zsh"
+    # run "exec zsh"
     run "omz theme use agnoster"
     log_success "✔ oh-my-zsh 安装成功"
 
