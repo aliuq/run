@@ -128,8 +128,7 @@ echo_commands() {
   echo $(magenta "配置")
   echo_dividerline
   echo "$(green "100.") 安装 zsh            $(green "101.") 安装快捷工具            $(green "102.") 安装 ohmyzsh"
-  echo "$(green "103.") 安装 starship       $(green "104.") 添加 waketime             $(green "105.") 添加 docker 镜像"
-  echo "$(green "106.") 生成 ssh 密钥       $(green "107.") 安装 zsh"
+  echo "$(green "103.") 生成 ssh 密钥       $(green "104.") 添加 waketime           $(green "105.") 添加 docker 镜像"
   echo
 
   if [ -n "$preset" ]; then
@@ -148,6 +147,7 @@ echo_commands() {
   100) install_zsh ;;
   101) install_tools ;;
   102) install_ohmyzsh ;;
+  103) generate_ssh_key ;;
   [qQ] | [eE][xX][iI][tT] | [qQ][uU][iI][tT])
     info "Exit"
     exit 0

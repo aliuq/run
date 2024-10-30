@@ -226,6 +226,51 @@ install_ohmyzsh() {
   fi
 }
 
-# sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/test/start.sh)
-# sh <(curl -sL https://raw.githubusercontent.com/aliuq/config/refs/heads/master/run.sh)
-# sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/mods/config.sh)
+# 生成 SSH Key
+generate_ssh_key() {
+  log "生成 SSH Key"
+
+  if $force || read_confirm "是否生成 SSH Key? (y/n): "; then
+    local ssh_dir="$HOME/.ssh"
+    if [ ! -d "$ssh_dir" ]; then
+      run "mkdir -p $ssh_dir"
+      run "chmod 700 $ssh_dir"
+    fi
+
+    local key_name=$(read_input "请输入密钥名称, 用于明确其作用，不能为空: ")
+    [ -z "$key_name" ] && log "$(yellow '密钥名称不能为空, Skipping...')" && return
+
+    local ssh_key="$ssh_dir/$key_name"
+    yellow "⚠️ 在没有权限的情况下，判断 $ssh_dir/$key_name 是否存在，可能会出现异常，可手动检查: sudo ls -al $ssh_dir"
+    if [ ! -f "$ssh_key" ]; then
+      local type=${SSH_KEY_TYPE:-ed25519}
+      # 从 git 配置中获取 user.email
+      local git_email=$(git config user.email)
+      local email=${SSH_KEY_EMAIL:-$git_email}
+      local real_email=$(read_input "请输入 email 地址, 默认($email): " $email)
+
+      if [ -z "$real_email" ]; then
+        log "$(yellow 'email 为空, Skipping...')"
+        log "$(yellow '请先配置 git user.email 或者设置 SSH_KEY_EMAIL 环境变量')"
+        info "示例: 推荐使用环境变量设置"
+        info "  SSH_KEY_EMAIL=\"<email>\" "
+        info "  git config --global user.email \"<email>\" "
+        return
+      fi
+
+      run "ssh-keygen -t $type -b 4096 -C \"$real_email-$(date -I)\" -f $ssh_key -N \"\" -q"
+      run "chmod 600 $ssh_key"
+      log_success "✔ SSH Key 生成成功"
+      echo
+      echo "- 公钥: $(cyan $ssh_key.pub)"
+      echo "- 私钥: $(cyan $ssh_key)"
+      echo
+      echo "- 请将公钥添加到远程服务器的 ~/.ssh/authorized_keys 文件中, 执行下面命令获取执行脚本"
+      echo
+      green "  echo \"echo \\\"\$(sudo cat $ssh_key.pub)\\\" >> ~/.ssh/authorized_keys\""
+      echo
+    else
+      log_warn "⚠️ SSH Key 已存在: $ssh_key"
+    fi
+  fi
+}
