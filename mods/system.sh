@@ -18,10 +18,13 @@ fi
 update_packages() {
   log "更新软件包"
   if $force || read_confirm "是否更新软件包? (y/n): "; then
+    log "正在更新软件包..."
     case $lsb_dist in
-      ubuntu) run "apt update -y && apt upgrade -y" ;;
-      *) red "==> 暂不支持该系统" ;;
+    ubuntu) run "apt update -y && apt upgrade -y" ;;
+    *) log "$(red "[$lsb_dist] 暂不支持")" ;;
     esac
+
+    log "$(green "软件包更新成功")"
   fi
 }
 

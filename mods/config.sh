@@ -56,27 +56,49 @@ install_zsh() {
   log "安装 zsh"
 
   if command_exists zsh; then
-    yellow "==> zsh 已安装, Skipping...\n"
-    return
+    if ! $dry_run && read_confirm "zsh 已安装，是否卸载 zsh? (y/n): "; then
+      case $lsb_dist in
+      ubuntu) run "apt remove -y zsh" ;;
+      *) log "$(red "[$lsb_dist] 暂不支持")" ;;
+      esac
+    else
+      log "$(yellow "zsh 已安装, Skipping...")"
+      return
+    fi
   fi
 
   if $force || read_confirm "是否安装 zsh? (y/n): "; then
     params="包管理器:推荐|源码"
     read_from_options_show $params
     install_type=$(read_from_options "请选择安装方式?" "1" $params true)
-    if [ $lsb_dist = "ubuntu" ]; then
+
+    case "$lsb_dist" in
+    ubuntu)
       case "$install_type" in
       1) run "apt update -y && apt install -y zsh" ;;
       2) install_zsh_from_ubuntu ;;
       *)
-        red "==> 错误选项"
+        log "$(red "错误选项: $install_type")"
         exit 0
         ;;
       esac
-    fi
+      ;;
+    *)
+      log "$(red "[$lsb_dist] 暂不支持")"
+      exit 0
+      ;;
+    esac
 
     if $dry_run; then run "chsh -s $(which zsh)"; else chsh -s $(which zsh); fi
-    green "==> Default Shell: $(cyan $SHELL)"
+    if [ "$user" != 'root' ] && [ "$SHELL" != */zsh ]; then
+      echo
+      yellow "⚠️ 当前用户为 $user，设置默认终端失败，请手动执行以下命令:"
+      echo
+      cyan "  sudo chsh -s $(which zsh)"
+      echo
+    fi
+
+    log "$(green "$(which zsh) 安装成功, 请重新打开终端")"
   fi
 }
 

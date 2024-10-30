@@ -41,83 +41,91 @@ if $help; then
 fi
 
 do_prepare() {
-  info "==> 准备环境"
-  if command_exists curl; then info "✔ curl 已安装"; else run "apt install -y curl"; fi
-  if command_exists jq; then info "✔ jq 已安装"; else run "apt install -y jq"; fi
-  info "==> 环境准备完毕"
+  info "准备脚本开发环境"
+  run "apt update -y"
+  command_exists curl || run "apt install -y curl" && info "$(green '✔ curl 安装成功')"
+  command_exists jq || run "apt install -y jq" && info "$(green '✔ jq 安装成功')"
+  info "脚本开发环境准备完毕"
+}
+
+echo_dividerline() {
+  echo "-------------------------------------------------------"
 }
 
 echo_info() {
-  # 获取完整的系统信息
-  if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS_NAME="$NAME"
-    OS_VERSION="$VERSION"
-  elif [ -f /etc/lsb-release ]; then
-    . /etc/lsb-release
-    OS_NAME="$DISTRIB_ID"
-    OS_VERSION="$DISTRIB_RELEASE"
-  else
-    OS_NAME="Unknown"
-    OS_VERSION="Unknown"
-  fi
-
-  # CPU 缓存: L1: 32 KiB / L2: 512 KiB / L3: 32 MiB
-  cpu_info=$(lscpu | awk '/L1d cache/ {L1=$3 " " $4} /L2 cache/ {L2=$3 " " $4} /L3 cache/ {L3=$3 " " $4} END {printf "L1: %s / L2: %s / L3: %s", L1, L2, L3}')
-  # 硬盘空间: 已用 / 总大小
-  disk_info=$(df -h / | awk '/\//{print $3 " / " $2}')
-  # 启动盘路径: /dev/vda1
-  boot_disk=$(df / | awk '/\//{print $1}')
-  # 内存: 已用 / 总大小
-  mem_info=$(free -h | awk '/Mem/{print $3 " / " $2}')
-  # Swap: 已用 / 总大小
-  swap_info=$(free -h | awk '/Swap/{print $3 " / " $2}')
-  # 系统在线时间: 1 day, 2 hours 3 minutes
-  uptime_info=$(uptime -p | sed 's/up //')
-  # 负载
-  loadavg=$(uptime | awk -F 'load average: ' '{print $2}' | awk '{print $1, $2, $3}')
-  # 系统: Debian GNU/Linux 10 (buster) (x86_64)
-  # 架构: x86_64
-  # 内核: 5.4.0-80-generic
-  public_ip=$(curl -sL https://ip.llll.host)
-  ip_info=$(curl -sL https://myip.ipip.net/json | jq -r '.data.location | [.[0], .[1], .[2], .[3], .[4]] | @csv' | sed 's/,/ /g' | sed 's/"//g')
-
-  echo
   clear
   echo $(cyan "$(bold "RunShell by AliuQ")")
-  echo "-------------------------------------------------------"
-  printf "仓库地址      : %s\n" $(cyan_bright "https://github.com/aliuq/run")
-  printf "默认终端      : $(cyan_bright "$SHELL")\n"
-  printf "User/Host     : $(cyan_bright "$(whoami)")$(yellow "@")$(cyan_bright "$(hostname)")\n"
-  printf "IP 地址       : $(hostname -I) / $(cyan_bright "$public_ip")\n"
-  printf "系统在线时间  : $(cyan_bright "$uptime_info")\n"
-  printf "连通性检查    : Github $(cyan_bright "$(check_network github)") / Google $(cyan_bright "$(check_network google)") / Cloudflare $(cyan_bright "$(check_network cloudflare)")\n"
-  printf "网络          : $(cyan_bright "$ip_info")\n"
+  echo_dividerline
+  printf "仓库地址      : $(cyan_bright 'https://github.com/aliuq/run')\n"
+  printf "User/Host     : $(cyan_bright "$(whoami)")@$(cyan_bright "$(hostname)")\n"
 
-  if $verbose; then
-    echo "-------------------------------------------------------"
-    printf "CPU 缓存      : $(cyan_bright "$cpu_info")\n"
-    printf "硬盘空间      : $(cyan_bright "$disk_info")\n"
-    printf "启动盘路径    : $(cyan_bright "$boot_disk")\n"
-    printf "内存          : $(cyan_bright "$mem_info")\n"
-    printf "Swap          : $(cyan_bright "$swap_info")\n"
-    printf "负载          : $(cyan_bright "$loadavg")\n"
-    printf "系统          : $(cyan_bright "$OS_NAME $OS_VERSION")\n"
-    printf "架构          : $(cyan_bright "$(uname -m)")\n"
-    printf "内核          : $(cyan_bright "$(uname -r)")\n"
+  if [ -f /etc/os-release ]; then
+    . /etc/os-release && THE_OS="$NAME $VERSION"
+  elif [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release && THE_OS="$DISTRIB_ID $DISTRIB_RELEASE"
+  else
+    THE_OS="Unknown"
   fi
+  echo "系统          : $(cyan_bright "$THE_OS")"
+  echo "默认终端      : $(cyan_bright "$SHELL $TERM")"
+  echo "系统在线时间  : $(cyan_bright "$(uptime -p | sed 's/up //')")"
+  echo "IP 地址       : $(hostname -I) / $(cyan_bright "$(get_ip)")"
+
+  tput sc
+  echo "连通性检查    : $(yellow "请稍候……")"
+  local conn_github="Github $(cyan_bright "$(check_network github)")"
+  local conn_google="Google $(cyan_bright "$(check_network google)")"
+  local conn_cf="Cloudflare $(cyan_bright "$(check_network cloudflare)")"
+  tput rc && tput ed
+  echo "连通性检查    : $conn_github / $conn_google / $conn_cf"
+
+  ip_info=$(curl -sL https://myip.ipip.net/json | jq -r '.data.location | [.[0], .[1], .[2], .[3], .[4]] | @csv' | sed 's/,/ /g' | sed 's/"//g')
+  echo "网络          : $(cyan_bright "$ip_info")"
+
+  echo_system_info
+}
+
+# 显示系统信息
+echo_system_info() {
+  echo "-------------------------------------------------------"
+  # CPU 缓存: L1: 32 KiB / L2: 512 KiB / L3: 32 MiB
+  cpu_info=$(lscpu | awk '/L1d cache/ {L1=$3 " " $4} /L2 cache/ {L2=$3 " " $4} /L3 cache/ {L3=$3 " " $4} END {printf "L1: %s / L2: %s / L3: %s", L1, L2, L3}')
+  echo "CPU 缓存      : $(cyan_bright "$cpu_info")"
+
+  # 内存: 已用 / 总大小
+  mem_info=$(free -h | awk '/Mem/{print $3 " / " $2}')
+  echo "内存          : $(cyan_bright "$mem_info")"
+
+  # Swap: 已用 / 总大小
+  swap_info=$(free -h | awk '/Swap/{print $3 " / " $2}')
+  echo "Swap          : $(cyan_bright "$swap_info")"
+
+  # 负载
+  loadavg=$(uptime | awk -F 'load average: ' '{print $2}' | awk '{print $1, $2, $3}')
+  echo "负载          : $(cyan_bright "$loadavg")"
+
+  # 硬盘空间: 已用 / 总大小
+  disk_info=$(df -h / | awk '/\//{print $3 " / " $2}')
+  echo "硬盘空间      : $(cyan_bright "$disk_info")"
+
+  # 启动盘路径: /dev/vda1
+  boot_disk=$(df / | awk '/\//{print $1}')
+  echo "启动盘路径    : $(cyan_bright "$boot_disk")"
+
+  echo "架构          : $(cyan_bright "$(uname -m)")"
+  echo "内核          : $(cyan_bright "$(uname -r)")"
 }
 
 echo_commands() {
   echo
   echo
   echo $(magenta "系统")
-  echo "--------------------------------------------------"
+  echo_dividerline
   echo "$(green "1.") 更新软件包        $(green "2.") 修改主机名        $(green "q.") 退出"
   echo "$(green "3.") 修改 ssh 端口"
   echo
   echo $(magenta "配置")
-  echo "--------------------------------------------------"
+  echo_dividerline
   echo "$(green "100.") 安装 zsh            $(green "101.") 安装 zimfw            $(green "102.") 覆盖 ~/.zshrc"
   echo "$(green "103.") 安装 starship       $(green "104.") 添加 waketime             $(green "105.") 添加 docker 镜像"
   echo "$(green "106.") 生成 ssh 密钥       $(green "107.") 安装 zsh"
@@ -129,6 +137,7 @@ echo_commands() {
     echo
   else
     command_index=$(read_input "$(magenta "=> 请输入要执行的命令编号:") ")
+    echo
   fi
 
   case $command_index in
@@ -147,7 +156,7 @@ echo_commands() {
   esac
 }
 
-do_prepare
+# do_prepare
 echo_info
 echo_commands
 

@@ -48,7 +48,9 @@ for arg in "$@"; do
   --verbose | -v) verbose=true ;;
   --verbose=*) verbose="${arg#*=}" ;;
   --force | -[yY]) force=true ;;
+  --force=*) force="${arg#*=}" ;;
   --dry-run) dry_run=true ;;
+  --dry-run=*) dry_run="${arg#*=}" ;;
   --help | -[hH]) help=true ;;
   *) remaining_args="$remaining_args $arg" ;;
   esac
@@ -125,18 +127,20 @@ get_date() {
 }
 
 log() {
-  t=$(date "+%Y-%m-%d %H:%M:%S")
-  ft=$(cyan "[INFO] $t")
-  printf "$ft $(white "$1")\n"
+  t=$(date -u -d '+8 hours' "+%Y-%m-%d %H:%M:%S")
+  printf "[INFO] $t $1\n"
 }
-info() {
-  printf "$1\n"
+debug() {
+  t=$(date -u -d '+8 hours' "+%Y-%m-%d %H:%M:%S")
+  printf "$(yellow [DEBUG]) $t $1\n"
+}
+error() {
+  t=$(date -u -d '+8 hours' "+%Y-%m-%d %H:%M:%S")
+  printf "$(red [ERROR]) $t $(red "$1")\n"
 }
 
-debug_info() {
-  if $verbose; then
-    info "==> $1"
-  fi
+info() {
+  log "$1"
 }
 
 command_exists() {
@@ -146,9 +150,9 @@ command_exists() {
 command_valid() {
   if ! command_exists "$1"; then
     if [ -z "$2" ]; then
-      red "Error: $1 is not installed or not in PATH"
+      error "$(bold $1) is not installed or not in PATH"
     else
-      red "$2"
+      error "$2"
     fi
     exit 1
   fi
@@ -165,10 +169,23 @@ run() {
     echo "+ $sh_c '$1'"
     return
   fi
+
   if $verbose; then
     echo "+ $sh_c '$1'"
+    echo
+    $sh_c "$1"
+    echo
+  else
+    $sh_c "$1" >/dev/null 2>&1
   fi
-  $sh_c "$1"
+}
+
+get_distribution() {
+  lsb_dist=""
+  if [ -r /etc/os-release ]; then
+    lsb_dist="$(. /etc/os-release && echo "$ID")"
+  fi
+  echo "$lsb_dist"
 }
 
 set_var() {
@@ -185,13 +202,16 @@ set_var() {
       exit 1
     fi
   fi
+
+  lsb_dist=$(get_distribution)
+  lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 }
 
 # 发送 Webhook 消息
 send_webhook() {
   # 如果不存在 MY_WEBHOOK_URL 环境变量，则不发送消息
   if [ -z "$MY_WEBHOOK_URL" ]; then
-    yellow "MY_WEBHOOK_URL 环境变量不存在"
+    yellow "❕MY_WEBHOOK_URL 环境变量不存在"
     return
   fi
 
@@ -208,28 +228,18 @@ send_webhook() {
 read_confirm() {
   echo
   read -p "$(green "$1")" confrim
-  # 如果 $2 为 true，则取消 echo，否则打印
-  [ "$2" = false ] || echo
 
   case $confrim in
-  [yY] | [yY][eE][sS])
-    return 0
-    ;;
-  [nN] | [nN][oO])
-    return 1
-    ;;
-  *)
-    return 0
-    ;;
+  [yY] | [yY][eE][sS]) return 0 ;;
+  [nN] | [nN][oO]) return 1 ;;
+  *) return 0 ;;
   esac
 }
 
 read_input() {
   read -p "$(green "$1")" input
   case $input in
-  "")
-    input="$2"
-    ;;
+  "") input="$2" ;;
   esac
   echo $input
 }
@@ -237,12 +247,8 @@ read_input() {
 read_confirm_and_input() {
   read -p "$(green "$1")" confrim
   case $confrim in
-  "" | [yY] | [yY][eE][sS])
-    confrim="$2"
-    ;;
-  [nN] | [nN][oO])
-    confrim=""
-    ;;
+  "" | [yY] | [yY][eE][sS]) confrim="$2" ;;
+  [nN] | [nN][oO]) confrim="" ;;
   esac
   echo $confrim
 }
@@ -285,16 +291,6 @@ read_from_options() {
   unset IFS
 }
 
-is_ubuntu() {
-  [ -f /etc/lsb-release ] && grep -q "DISTRIB_ID=Ubuntu" /etc/lsb-release
-}
-is_centos() {
-  [ -f /etc/redhat-release ] && grep -q "CentOS" /etc/redhat-release
-}
-is_debian() {
-  [ -f /etc/os-release ] && grep -q "ID=debian" /etc/os-release
-}
-
 # 网络连通性检查
 check_network() {
   if ! command_exists curl; then
@@ -307,15 +303,9 @@ check_network() {
   local timestamp=$(date +%s) # 时间戳
 
   case "$name" in
-  [gG][oO][oO][gG][lL][eE])
-    url="https://www.google.com/favicon.ico?_=$timestamp"
-    ;;
-  [gG][iI][tT][hH][uU][bB])
-    url="https://github.com/favicon.ico?_=$timestamp"
-    ;;
-  [cC][lL][oO][uU][dD][fF][lL][aA][rR][eE])
-    url="https://www.cloudflare.com/favicon.ico?_=$timestamp"
-    ;;
+  [gG]oogle) url="https://www.google.com/favicon.ico?_=$timestamp" ;;
+  [gG]ithub) url="https://github.com/favicon.ico?_=$timestamp" ;;
+  [cC]loudflare) url="https://www.cloudflare.com/favicon.ico?_=$timestamp" ;;
   esac
 
   start_time=$(date +%s%3N)
@@ -325,7 +315,7 @@ check_network() {
   local exit_code=$?
 
   if [ $exit_code -ne 0 ]; then
-    red "❌ ${elapsed_time}ms"
+    red "❌ 请求失败"
     return 1
   fi
 
@@ -333,9 +323,14 @@ check_network() {
     green "✅ ${elapsed_time}ms"
     return 0
   else
-    red "⚠️ ${elapsed_time}ms"
+    red "⚠️ 连接失败"
     return 1
   fi
+}
+
+get_ip() {
+  local ip=$(curl -sL https://ip.llll.host)
+  echo $ip
 }
 
 set_network() {
@@ -376,16 +371,4 @@ is_darwin() {
   esac
 }
 
-get_distribution() {
-  lsb_dist=""
-  if [ -r /etc/os-release ]; then
-    lsb_dist="$(. /etc/os-release && echo "$ID")"
-  fi
-  echo "$lsb_dist"
-}
-
 set_var
-set_network
-
-lsb_dist=$(get_distribution)
-lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
