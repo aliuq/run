@@ -30,16 +30,15 @@ update_packages() {
 
 # 修改主机名
 change_hostname() {
-  log "修改主机名"
-  if $force || read_confirm "是否修改主机名? (y/n): "; then
-    new_hostname=$(read_input "请输入新的主机名: ")
-    [ -z "$new_hostname" ] && info "==> 主机名不能为空, Skipping..." && return
+  log "修改主机名称"
 
-    HOSTNAME=$(hostname)
-    info "==> 当前主机名: $HOSTNAME"
-    info "==> 新的主机名: $new_hostname"
-    run "sed -i 's/$HOSTNAME/$new_hostname/g' /etc/hosts"
+  if $force || read_confirm "是否修改主机名? (y/n): "; then
+    local new_hostname=$(read_input "请输入新的主机名: ")
+    [ -z "$new_hostname" ] && log "$(yellow '主机名不能为空, Skipping...')" && return
+
+    local old_hostname=$(hostname)
+    run "sed -i 's/$old_hostname/$new_hostname/g' /etc/hosts"
     run "hostnamectl set-hostname $new_hostname"
-    green "==> 主机名修改成功, 请重新打开终端"
+    ! $dry_run && log_success "主机名修改成功, $(cyan "$old_hostname") => $(cyan "$(hostname)")"
   fi
 }
