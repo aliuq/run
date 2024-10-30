@@ -71,11 +71,14 @@ install_zsh() {
     params="包管理器:推荐|源码"
     read_from_options_show $params
     install_type=$(read_from_options "请选择安装方式?" "1" $params true)
+    log "正在安装中，请稍后……"
 
     case "$lsb_dist" in
     ubuntu)
       case "$install_type" in
-      1) run "apt update -y && apt install -y zsh" ;;
+      1)
+        run "apt update -y && apt install -y zsh"
+        ;;
       2) install_zsh_from_ubuntu ;;
       *)
         log "$(red "错误选项: $install_type")"
@@ -169,6 +172,8 @@ install_ohmyzsh() {
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
     local onmyzsh_url="https://install.ohmyz.sh"
     run "curl -fsSL $onmyzsh_url | sh -s - -y"
+    run "exec zsh"
+    run "omz theme use agnoster"
     log_success "✔ oh-my-zsh 安装成功"
 
     # zsh-users 社区插件，其中有几个常用的插件，值得推荐
@@ -212,8 +217,8 @@ install_ohmyzsh() {
     log_success "✔ oh-my-zsh 插件安装完成"
 
     # 修改主题为 agnoster
-    run "omz theme use agnoster"
-    log_success "✔ oh-my-zsh 主题修改成功 (agnoster)"
+    # run "omz theme use agnoster"
+    # log_success "✔ oh-my-zsh 主题修改成功 (agnoster)"
   fi
 }
 
