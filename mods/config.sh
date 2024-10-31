@@ -288,10 +288,9 @@ add_docker_mirror() {
     local tmp="/tmp/daemon.json"
     if [ ! -f "$docker_config" ]; then
       log_warn "⚠️ $docker_config 不存在"
-      run "mkdir -p /etc/docker"
-      run "touch $docker_config"
-      run "chmod 644 $docker_config"
-      log "创建配置文件: $docker_config"
+      run "mkdir -p /etc/docker && touch $docker_config && chmod 644 $docker_config"
+      run "echo '{}' > $docker_config"
+      log_success "创建配置文件: $docker_config"
     fi
     # 使用 jq 进行修复意外空格或者空行情况
     if ! jq -e '.["registry-mirrors"]' $docker_config >/dev/null 2>&1; then
