@@ -32,7 +32,7 @@ install_fnm() {
   if $force || read_confirm "是否安装 fnm? (y/n): "; then
     case $lsb_dist in
     ubuntu)
-      run "curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir $HOME/.fnm --skip-shell"
+      run "curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir ~/.fnm --skip-shell"
       # run "fnm completions --shell zsh"
       run "echo '# fnm' >> ~/.zshrc"
       run "echo 'FNM_PATH=\"$HOME/.fnm\"' >> ~/.zshrc"
