@@ -275,6 +275,29 @@ generate_ssh_key() {
   fi
 }
 
+# 添加 waketime
+add_waketime() {
+  log "添加自定义 waketime 配置"
+
+  local wakatime_config="$HOME/.wakatime.cfg"
+  if $force || read_confirm "是否添加通用配置到 $wakatime_config? (y/n): "; then
+    if [ ! -f "$wakatime_config" ]; then
+      api_url=$(read_input "请输入 wakatime api url: ")
+      [ -z "$api_url" ] && log_warn "api url 不能为空, Skipping..." && return
+      api_key=$(read_input "请输入 wakatime api key: ")
+      [ -z "$api_key" ] && log_warn "api key 不能为空, Skipping..." && return
+
+      run "touch $wakatime_config"
+      run "echo '[settings]' > $wakatime_config"
+      run "echo 'api_url = $api_url' >> $wakatime_config"
+      run "echo 'api_key = $api_key' >> $wakatime_config"
+      log_success "✔ wakatime 配置文件已生成"
+    else
+      log_warn "⚠️ wakatime 配置文件($wakatime_config)已存在, 如果需要重新生成请手动删除!"
+    fi
+  fi
+}
+
 # 添加 docker 镜像
 add_docker_mirror() {
   log "添加 docker 镜像"
@@ -304,7 +327,6 @@ add_docker_mirror() {
     log "重启 docker 服务"
     run "systemctl restart docker"
     log_success "✔ docker 服务重启成功"
-
     log_success "✔ docker 镜像地址添加成功"
   fi
 }
