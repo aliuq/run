@@ -196,6 +196,12 @@ run() {
 
 get_distribution() {
   lsb_dist=""
+  # Check for Windows
+  case "$(uname -s)" in
+  *MINGW* | *MSYS* | *CYGWIN*) lsb_dist="windows" ;;
+  esac
+
+  # Check for Linux distribution
   if [ -r /etc/os-release ]; then
     lsb_dist="$(. /etc/os-release && echo "$ID")"
   fi

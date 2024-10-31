@@ -16,11 +16,13 @@ if $is_remote; then
 $(curl -sSL $BASE_URL/helper.sh)
 $(curl -sSL $BASE_URL/mods/system.sh)
 $(curl -sSL $BASE_URL/mods/config.sh)
+$(curl -sSL $BASE_URL/mods/web.sh)
 EOF
 else
   . $BASE_URL/helper.sh
   . $BASE_URL/mods/system.sh
   . $BASE_URL/mods/config.sh
+  . $BASE_URL/mods/web.sh
 fi
 
 preset=""
@@ -130,6 +132,10 @@ echo_commands() {
   echo "$(green "100.") 安装 zsh            $(green "101.") 安装快捷工具            $(green "102.") 安装 ohmyzsh"
   echo "$(green "103.") 生成 ssh 密钥       $(green "104.") 添加 waketime           $(green "105.") 添加 docker 镜像"
   echo
+  echo $(magenta "前端")
+  echo_dividerline
+  echo "$(green "301.") 安装 fnm"
+  echo
 
   if [ -n "$preset" ]; then
     command_index=$preset
@@ -150,6 +156,7 @@ echo_commands() {
   103) generate_ssh_key ;;
   104) add_waketime ;;
   105) add_docker_mirror ;;
+  301) install_fnm ;;
   [qQ] | [eE][xX][iI][tT] | [qQ][uU][iI][tT])
     info "Exit"
     exit 0
