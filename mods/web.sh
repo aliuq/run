@@ -36,15 +36,17 @@ install_fnm() {
     case $lsb_dist in
     ubuntu)
       run "curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir ~/.fnm --skip-shell"
-      run "echo '# fnm' >> ~/.zshrc"
-      run "echo 'eval \"\$(fnm completions --shell zsh)\"' >> ~/.zshrc"
-      run "echo 'eval \"\$(fnm env --use-on-cd --shell zsh)\"' >> ~/.zshrc"
-      # run "echo 'FNM_PATH=\"$HOME/.fnm\"' >> ~/.zshrc"
-      # run "echo 'if [ -d \"\$FNM_PATH\" ]; then' >> ~/.zshrc"
-      # run "echo '  export PATH=\"\$FNM_PATH:\$PATH\"' >> ~/.zshrc"
-      # run "echo '  eval \"\`fnm env\`\"' >> ~/.zshrc"
-      # run "echo 'fi' >> ~/.zshrc"
-      # run "echo 'eval \"\$(fnm env --use-on-cd --shell zsh)\"' >> ~/.zshrc"
+      if ! grep -q "# fnm start" ~/.zshrc; then
+        cat <<'EOF' >>~/.zshrc
+# fnm start
+FNM_PATH="~/.fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "`fnm env --use-on-cd --shell zsh`"
+  eval "`fnm completions --shell zsh`"
+fi
+EOF
+      fi
       ;;
     esac
   fi
