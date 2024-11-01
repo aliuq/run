@@ -30,6 +30,9 @@ install_fnm() {
   tput sgr0
 
   if $force || read_confirm "是否安装 fnm? (y/n): "; then
+    command_exists curl || run "apt update -y && apt install -y curl"
+    command_exists unzip || run "apt update -y && apt install -y unzip"
+
     case $lsb_dist in
     ubuntu)
       run "curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir ~/.fnm --skip-shell"
