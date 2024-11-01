@@ -375,6 +375,8 @@ set_var() {
 set_var
 
 
+BASE_URL="https://raw.githubusercontent.com/aliuq/run/refs/heads/master"
+
 # 更新软件包
 update_packages() {
   log "更新软件包"

@@ -7,6 +7,7 @@ const tpl = fs.readFileSync(tplPath, 'utf-8')
 
 const newContent = renderTemplate(tpl, {
   date: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().substring(0, 10),
+  base_url: 'https://raw.githubusercontent.com/aliuq/run/refs/heads/master'
 })
 
 fs.writeFileSync(`${dir}/start.sh`, newContent)
