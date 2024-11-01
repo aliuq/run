@@ -36,7 +36,7 @@ change_ssh_port() {
     [ -z "$new_port" ] && log "$(yellow '端口不能为空, Skipping...')" && return
 
     local old_port=$(grep -oP "(?<=Port ).*" /etc/ssh/sshd_config)
-    run "sed -i 's/Port $old_port/Port $new_port/g' /etc/ssh/sshd_config"
+    run "sed -i 's/^#\?Port $old_port/Port $new_port/g' /etc/ssh/sshd_config"
 
     case $lsb_dist in
     ubuntu) run "systemctl restart ssh" ;;
