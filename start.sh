@@ -407,6 +407,7 @@ change_hostname() {
 }
 
 # 修改 ssh 端口
+
 change_ssh_port() {
   log "修改 SSH 端口"
 
@@ -414,8 +415,15 @@ change_ssh_port() {
     local new_port=$(read_input "请输入新的 SSH 端口, 建议使用 2222: ")
     [ -z "$new_port" ] && log "$(yellow '端口不能为空, Skipping...')" && return
 
-    local old_port=$(grep -oP "(?<=Port ).*" /etc/ssh/sshd_config)
-    run "sed -i 's/Port $old_port/Port $new_port/g' /etc/ssh/sshd_config"
+    local old_port="22"
+    if grep -q "^Port" /etc/ssh/sshd_config; then
+      old_port=$(grep -oP "^Port \K.*" /etc/ssh/sshd_config)
+      log "原 SSH 端口配置为未注释状态"
+    else
+      log "原 SSH 端口配置为注释状态"
+    fi
+
+    run "sed -i '/^#\?Port /c\Port $new_port' /etc/ssh/sshd_config"
 
     case $lsb_dist in
     ubuntu) run "systemctl restart ssh" ;;
@@ -423,7 +431,7 @@ change_ssh_port() {
     *) log "$(red "[$lsb_dist] 暂不支持")" ;;
     esac
 
-    ! $dry_run && log_success "SSH 端口修改成功, $(cyan "$old_port") => $(cyan "$new_port")"
+    ! $dry_run && log_success "SSH 端口已修改，$(cyan "$old_port") => $(cyan "$new_port")"
 
     echo
     yellow "=> 在云服务器中修改，需要在云服务商的安全组中开放新的 SSH 端口 $(cyan $new_port)"
