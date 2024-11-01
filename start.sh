@@ -757,11 +757,11 @@ install_fnm() {
 
     case $lsb_dist in
     ubuntu)
-      run "curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir ~/.fnm --skip-shell"
+      run "curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir $HOME/.fnm --skip-shell"
       if ! grep -q "# fnm start" ~/.zshrc; then
         cat <<'EOF' >>~/.zshrc
 # fnm start
-FNM_PATH="~/.fnm"
+FNM_PATH="$HOME/.fnm"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "`fnm env --use-on-cd --shell zsh`"
