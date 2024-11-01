@@ -1,25 +1,3 @@
-#!/bin/bash
-
-BASE_URL=${BASE_URL:-"https://raw.githubusercontent.com/aliuq/run/refs/heads/master"}
-
-if echo "$BASE_URL" | grep -qE '^https?://'; then
-  is_remote=true
-else
-  is_remote=false
-fi
-
-if ! command -v run >/dev/null 2>&1; then
-  if $is_remote; then
-    . /dev/stdin <<EOF
-$(curl -sSL $BASE_URL/helper.sh)
-EOF
-  else
-    . $BASE_URL/helper.sh
-  fi
-fi
-
-## BEGIN
-
 install_zsh_from_ubuntu() {
   local zsh_version=$(read_input "请输入 zsh 版本(5.9): " 5.9)
   # local mirror_url=$(read_confirm_and_input "是否使用 mirror, 结尾要有斜杠/ (y/n): " "https://dl.llll.host/")
@@ -68,9 +46,9 @@ install_zsh() {
   fi
 
   if $force || read_confirm "是否安装 zsh? (y/n): "; then
-    params="包管理器:推荐|源码"
+    local params="包管理器:推荐|源码"
     read_from_options_show $params
-    install_type=$(read_from_options "请选择安装方式?" "1" $params true)
+    local install_type=$(read_from_options "请选择安装方式?" "1" $params true)
     log "正在安装中，请稍后……"
 
     case "$lsb_dist" in
@@ -149,11 +127,7 @@ install_tools() {
   if [ ! -f ~/.config/starship.toml ]; then
     local toml_file="$BASE_URL/files/starship.toml"
     local dest_file="~/.config/starship.toml"
-    if $is_remote; then
-      run "curl -fsSL $toml_file > $dest_file"
-    else
-      run "cp $toml_file $dest_file"
-    fi
+    run "curl -fsSL $toml_file > $dest_file"
     log_success "✔ starship 配置文件已生成"
   else
     log_warn "⚠️ starship 配置文件(~/.config/starship.toml)已存在, 如果需要重新生成请手动删除!"
@@ -282,9 +256,9 @@ add_waketime() {
   local wakatime_config="$HOME/.wakatime.cfg"
   if $force || read_confirm "是否添加通用配置到 $wakatime_config? (y/n): "; then
     if [ ! -f "$wakatime_config" ]; then
-      api_url=$(read_input "请输入 wakatime api url: ")
+      local api_url=$(read_input "请输入 wakatime api url: ")
       [ -z "$api_url" ] && log_warn "api url 不能为空, Skipping..." && return
-      api_key=$(read_input "请输入 wakatime api key: ")
+      local api_key=$(read_input "请输入 wakatime api key: ")
       [ -z "$api_key" ] && log_warn "api key 不能为空, Skipping..." && return
 
       run "touch $wakatime_config"

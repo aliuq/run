@@ -1,8 +1,13 @@
 #!/bin/bash
-# Usage:
 #
-#
+# Last update: {{date}}
 
-# Import helper functions
-# {{helper}}
+{{helper}}
 
+{{system}}
+
+{{config}}
+
+{{web}}
+
+{{basic}}

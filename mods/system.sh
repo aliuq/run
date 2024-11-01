@@ -1,19 +1,3 @@
-#!/bin/sh
-
-BASE_URL=${BASE_URL:-"https://raw.githubusercontent.com/aliuq/run/refs/heads/master"}
-
-if ! command -v run >/dev/null 2>&1; then
-  if echo "$BASE_URL" | grep -qE '^https?://'; then
-    . /dev/stdin <<EOF
-$(curl -sSL $BASE_URL/helper.sh)
-EOF
-  else
-    . $BASE_URL/helper.sh
-  fi
-fi
-
-## BEGIN
-
 # 更新软件包
 update_packages() {
   log "更新软件包"

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Usage:
 #
 # For shell:
@@ -16,25 +14,6 @@
 #
 # source <(curl -sSL https://raw.githubusercontent.com/aliuq/shs/main/helper.sh)
 # source <(wget -qO- https://raw.githubusercontent.com/aliuq/shs/main/helper.sh)
-#
-# Another short link:
-#
-# + https://s.xod.cc/shell-helper
-# + https://bit.ly/shell-helper
-#
-# Another short mirror link:
-#
-# + https://s.xod.cc/shell-helper-mirror
-# + https://bit.ly/shell-helper-mirror
-
-# Colors
-# bold="\033[1m"
-# red="\033[0;31m"
-# green="\033[0;32m"
-# yellow="\033[0;33m"
-# cyan="\033[0;36m"
-# plain="\033[0m"
-# dim="\033[2m"
 
 verbose=false
 force=false
@@ -153,9 +132,7 @@ log_warn() { log "$1" "warn"; }
 log_error() { log "$1" "error"; }
 log_success() { log "$1" "success"; }
 
-info() {
-  log "$1"
-}
+info() { log "$1"; }
 
 command_exists() {
   command -v "$@" >/dev/null 2>&1
@@ -222,7 +199,7 @@ send_webhook() {
   fi
 
   local content="$1"
-  body="{\"content\":\"$content\"}"
+  local body="{\"content\":\"$content\"}"
   run "curl -X POST -H 'Content-Type: application/json' -d '$body' \"$MY_WEBHOOK_URL\""
 }
 
@@ -259,7 +236,7 @@ read_from_options_show() {
   if [ -n "$1" ]; then
     echo
     IFS="|"
-    index=1
+    local index=1
     printf "$(cyan "可选项:") \n"
     echo "-------------------"
     for item in $1; do
@@ -275,11 +252,11 @@ read_from_options_show() {
 # $2: 默认值
 # $3: 选项列表
 read_from_options() {
-  option=$(read_input "$1(默认 $2): " "$2")
-  use_index=${4:-false}
+  local option=$(read_input "$1(默认 $2): " "$2")
+  local use_index=${4:-false}
 
   IFS="|"
-  index=1
+  local index=1
   for item in $3; do
     if [ "$option" = "$index" ]; then
       IFS=":"
@@ -309,7 +286,7 @@ check_network() {
   [cC]loudflare) url="https://www.cloudflare.com/favicon.ico?_=$timestamp" ;;
   esac
 
-  start_time=$(date +%s%3N)
+  local start_time=$(date +%s%3N)
   local result=$(curl -s -m 1 -o /dev/null -w "%{http_code}" "$url")
   local end_time=$(date +%s%3N)
   local elapsed_time=$((end_time - start_time))
