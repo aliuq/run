@@ -1,20 +1,37 @@
 # 设置配置范例，开启编辑器的自动补全
 "$schema" = 'https://starship.rs/config-schema.json'
 
+# Use the color palette
+palette = "dracula"
+
+
+[character]
+error_symbol = "[✖](bold red)"
+success_symbol = "[❯](bold green)"
+
 [cmd_duration]
+style = "bold yellow"
 show_milliseconds = true
 show_notifications = true
 
+[directory]
+style = "bold green"
+
+[git_branch]
+style = "bold pink"
+
+[git_status]
+style = "bold red"
+
 [localip]
 ssh_only = false
-format = "[$localipv4](bold yellow) "
 disabled = false
 
 [memory_usage]
 disabled = false
 threshold = -1
-format = "[${ram} ${ram_pct}]($style) "
-style = "bold dimmed green"
+format = "[${ram}( | ${swap})]($style) "
+style = "bold dimmed white"
 
 [time]
 disabled = false
@@ -25,26 +42,33 @@ style = "bold dimmed blue"
 
 [hostname]
 ssh_only = false
-format = '[$ssh_symbol$hostname](bold dimmed green) '
+style = "bold purple"
+format = '[$ssh_symbol$hostname]($style) '
 disabled = false
 
 [username]
-style_user = "bold yellow"
-style_root = "bold red"
+style_user = "bold cyan"
 show_always = true
 disabled = false
 
 [shell]
-style = 'cyan bold'
+style = 'bold cyan'
 format = '[$indicator]($style) '
 fish_indicator = '󰈺 '
 powershell_indicator = '_'
 disabled = false
 
-[env_var.CLOUD_SERVER]
-style = 'bold yellow'
-format = "[$env_value]($style) "
 
-[env_var.CLOUD_SERVER_REGION]
-style = 'bold yellow'
-format = "[$env_value]($style) "
+# Define Dracula color palette
+[palettes.dracula]
+background = "#282a36"
+current_line = "#44475a"
+foreground = "#f8f8f2"
+comment = "#6272a4"
+cyan = "#8be9fd"
+green = "#50fa7b"
+orange = "#ffb86c"
+pink = "#ff79c6"
+purple = "#bd93f9"
+red = "#ff5555"
+yellow = "#f1fa8c"
