@@ -695,7 +695,7 @@ install_fzf_process() {
 # 安装 zoxide
 # https://github.com/ajeetdsouza/zoxide
 install_zoxide() {
-  if ! command_exists fzf; then
+  if ! command_exists zoxide; then
     run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
   else
     local version=$(zoxide --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
