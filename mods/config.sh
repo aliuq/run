@@ -312,6 +312,15 @@ install_ohmyzsh() {
     run "sed -i 's/plugins=(git)/plugins=(git starship zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search eza fzf zoxide)/g' ~/.zshrc"
     log_success "✔ oh-my-zsh 插件修改完成"
 
+    # 添加自定义配置
+    if [ ! -f ~/.myrc ]; then
+      local myrc_file="$BASE_URL/files/.myrc"
+      local dest_file="~/.myrc"
+      run "curl -fsSL $myrc_file > $dest_file"
+      log_success "✔ myrc 配置文件已添加"
+    else
+      log_warn "⚠️ myrc 配置文件(~/.myrc)已存在, 如果需要重新生成请手动删除!"
+    fi
   fi
 }
 
