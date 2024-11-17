@@ -231,8 +231,10 @@ install_fzf_process() {
 # 安装 zoxide
 # https://github.com/ajeetdsouza/zoxide
 install_zoxide() {
+  local install_url="https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
+  local save_path="/usr/local/bin"
   if ! command_exists zoxide; then
-    run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+    run "curl -sSfL $install_url | sh -s - --bin-dir=$save_path"
     log_success "✅ zoxide 安装成功"
   else
     local version=$(zoxide --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
@@ -242,7 +244,7 @@ install_zoxide() {
     new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
       log_warn "⚠️ zoxide 版本过低: $version, 最新版本: $new_version"
-      run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+      run "curl -sSfL $install_url | sh -s - --bin-dir=$save_path"
       echo
       log_success "✔ zoxide 更新成功"
     else
