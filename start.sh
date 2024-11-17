@@ -763,6 +763,10 @@ install_ohmyzsh() {
       local myrc_file="$BASE_URL/files/.myrc"
       local dest_file="~/.myrc"
       run "curl -fsSL $myrc_file > $dest_file"
+      # 判断 ~/.zshrc 中是否已经包含了 .myrc 文件
+      if ! grep -q "~/.myrc" ~/.zshrc; then
+        run "echo \"source ~/.myrc\" >> ~/.zshrc"
+      fi
       log_success "✔ myrc 配置文件已添加"
     else
       log_warn "⚠️ myrc 配置文件(~/.myrc)已存在, 如果需要重新生成请手动删除!"
@@ -931,9 +935,23 @@ fi
 
 do_prepare() {
   info "准备脚本开发环境"
-  command_exists curl || run "apt update -y && apt install -y curl" && info "$(green '✔ curl 安装成功')"
-  command_exists jq || run "apt update -y && apt install -y jq" && info "$(green '✔ jq 安装成功')"
+  do_prepare_apt curl
+  do_prepare_apt jq
   info "脚本开发环境准备完毕"
+}
+
+do_prepare_apt() {
+  local cmd=$1
+  tput sc
+  info "$(cyan "检查 $cmd 命令……")"
+  if ! command_exists $cmd; then
+    run "apt update -y && apt install -y $cmd"
+    tput rc && tput ed
+    log_success "✔ $cmd 安装成功"
+  else
+    tput rc && tput ed
+    log_warn "⚠️ $cmd 已安装"
+  fi
 }
 
 echo_dividerline() {
