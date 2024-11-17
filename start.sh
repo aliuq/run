@@ -592,10 +592,10 @@ install_basic_tools() {
   install_fzf
   install_zoxide
 
-  if command_exists omz; then
-    run "omz plugin enable eza fzf zoxide"
-  fi
-
+  log_success "基础工具安装完成"
+  echo "\n执行下面命令以启用插件\n"
+  cyan "  omz plugin enable eza fzf zoxide"
+  echo
 }
 
 # 安装 eza
@@ -603,11 +603,13 @@ install_basic_tools() {
 install_eza() {
   if ! command_exists eza; then
     install_eza_process
+    log_success "✅ eza 安装成功"
   else
     # 对比版本号，格式为 `v0.20.8`
     local version=$(eza --version | grep -oP '\Kv[0-9]+\.[0-9]+\.[0-9]+')
-    local url="https://api.github.com/repos/eza-community/eza/releases/latest"
-    local new_version=$(curl -s $url | jq -r '.tag_name')
+    local url="https://github.com/eza-community/eza/releases"
+    local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+    new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
       log_warn "⚠️ eza 版本过低: $version, 最新版本: $new_version"
       install_eza_process $new_version
@@ -649,12 +651,14 @@ install_eza_process() {
 install_fzf() {
   if ! command_exists fzf; then
     install_fzf_process
+    log_success "✅ fzf 安装成功"
   else
     # 对比版本号，格式为 `v0.20.8`
     local version=$(fzf --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
     version="v$version"
-    local url="https://api.github.com/repos/junegunn/fzf/releases/latest"
-    local new_version=$(curl -s $url | jq -r '.tag_name')
+    local url="https://github.com/junegunn/fzf/releases"
+    local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+    new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
       log_warn "⚠️ fzf 版本过低: $version, 最新版本: $new_version"
       install_fzf_process $new_version
@@ -697,11 +701,13 @@ install_fzf_process() {
 install_zoxide() {
   if ! command_exists zoxide; then
     run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+    log_success "✅ zoxide 安装成功"
   else
     local version=$(zoxide --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
     version="v$version"
-    local url="https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest"
-    local new_version=$(curl -s $url | jq -r '.tag_name')
+    local url="https://github.com/ajeetdsouza/zoxide/releases"
+    local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+    new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
       log_warn "⚠️ zoxide 版本过低: $version, 最新版本: $new_version"
       run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
