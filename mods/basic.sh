@@ -20,9 +20,23 @@ fi
 
 do_prepare() {
   info "准备脚本开发环境"
-  command_exists curl || run "apt update -y && apt install -y curl" && info "$(green '✔ curl 安装成功')"
-  command_exists jq || run "apt update -y && apt install -y jq" && info "$(green '✔ jq 安装成功')"
+  do_prepare_apt curl
+  do_prepare_apt jq
   info "脚本开发环境准备完毕"
+}
+
+do_prepare_apt() {
+  local cmd=$1
+  tput sc
+  info "$(cyan "检查 $cmd 命令……")"
+  if ! command_exists $cmd; then
+    run "apt update -y && apt install -y $cmd"
+    tput rc && tput ed
+    log_success "✔ $cmd 安装成功"
+  else
+    tput rc && tput ed
+    log_warn "⚠️ $cmd 已安装"
+  fi
 }
 
 echo_dividerline() {

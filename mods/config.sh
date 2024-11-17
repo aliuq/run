@@ -319,6 +319,10 @@ install_ohmyzsh() {
       local myrc_file="$BASE_URL/files/.myrc"
       local dest_file="~/.myrc"
       run "curl -fsSL $myrc_file > $dest_file"
+      # 判断 ~/.zshrc 中是否已经包含了 .myrc 文件
+      if ! grep -q "~/.myrc" ~/.zshrc; then
+        run "echo \"source ~/.myrc\" >> ~/.zshrc"
+      fi
       log_success "✔ myrc 配置文件已添加"
     else
       log_warn "⚠️ myrc 配置文件(~/.myrc)已存在, 如果需要重新生成请手动删除!"
