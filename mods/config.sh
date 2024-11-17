@@ -87,31 +87,7 @@ install_zsh() {
 install_tools() {
   log "准备安装工具"
 
-  # 安装 eza
-  if ! command_exists eza; then
-    run "curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz"
-    run "chmod +x eza && chown root:root eza && mv eza /usr/local/bin/eza"
-    log_success "✔ eza 安装成功"
-  else
-    log_warn "⚠️ eza 已安装"
-  fi
-
-  # 安装 fzf
-  if ! command_exists fzf; then
-    run "apt update -y && apt install -y fzf"
-    log_success "✔ fzf 安装成功"
-  else
-    log_warn "⚠️ fzf 已安装"
-  fi
-
-  # 安装 zoxide
-  if ! command_exists zoxide; then
-    local zoxide_url="https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
-    run "curl -sSfL $zoxide_url | sh -s -- --bin-dir /usr/local/bin"
-    log_success "✔ zoxide 安装成功"
-  else
-    log_warn "⚠️ zoxide 已安装"
-  fi
+  install_basic_tools
 
   # 安装 starship
   if ! command_exists starship; then
