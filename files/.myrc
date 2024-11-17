@@ -1,6 +1,9 @@
 # Load oh-my-zsh plugin on terminal
 # omz plugin enable eza fzf zoxide extract
 
+# Aliases
+alias cls="clear"
+
 # Output
 alias lcase="tr '[:upper:]' '[:lower:]'"
 alias ucase="tr '[:lower:]' '[:upper:]'"
