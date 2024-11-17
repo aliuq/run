@@ -1,0 +1,18 @@
+# Load oh-my-zsh plugin on terminal
+# omz plugin enable eza fzf zoxide extract
+
+# Output
+alias lcase="tr '[:upper:]' '[:lower:]'"
+alias ucase="tr '[:lower:]' '[:upper:]'"
+
+# Utils
+alias sitecopy='wget -k -K -E -r -l 10 -p -N -F -nH '
+
+function wget_archive_and_extract() {
+  local URL=$1
+  local FILENAME=${URL##*/}
+  wget $URL -O $FILENAME
+  extract $FILENAME
+  rm -i $FILENAME
+}
+alias wextract="wget_archive_and_extract "
