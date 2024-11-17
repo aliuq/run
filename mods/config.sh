@@ -147,6 +147,11 @@ install_basic_tools() {
   install_eza
   install_fzf
   install_zoxide
+
+  if command_exists omz; then
+    run "omz plugin enable eza fzf zoxide"
+  fi
+
 }
 
 # 安装 eza
