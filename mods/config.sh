@@ -136,6 +136,134 @@ install_tools() {
   log_success "工具安装完成"
 }
 
+install_basic_tools() {
+  log "安装基础工具 eza fzf zoxide"
+  echo
+  cyan "eza:    ls 命令的现代替代品"
+  cyan "fzf:    通用的模糊搜索工具"
+  cyan "zoxide: cd 命令的智能替代品"
+  echo
+
+  install_eza
+  install_fzf
+  install_zoxide
+}
+
+# 安装 eza
+# https://github.com/eza-community/eza
+install_eza() {
+  if ! command_exists eza; then
+    install_eza_process
+  else
+    # 对比版本号，格式为 `v0.20.8`
+    local version=$(eza --version | grep -oP '\Kv[0-9]+\.[0-9]+\.[0-9]+')
+    local url="https://api.github.com/repos/eza-community/eza/releases/latest"
+    local new_version=$(curl -s $url | jq -r '.tag_name')
+    if [ "$version" != "$new_version" ]; then
+      log_warn "⚠️ eza 版本过低: $version, 最新版本: $new_version"
+      install_eza_process $new_version
+      echo
+      log_success "✔ eza 更新成功"
+    else
+      log_warn "⚠️ eza 已安装, 版本: $version"
+    fi
+  fi
+}
+
+install_eza_process() {
+  # 如果不存在 $1 参数，则调用接口取最新版本号，否则，直接使用参数
+  local repo="eza-community/eza"
+  local url="https://api.github.com/repos/$repo/releases/latest"
+  local ver=${1:-$(curl -s "$url" | jq -r '.tag_name')}
+
+  # 下载最新版本的二进制文件到 /tmp 目录
+  local d_url="https://github.com/$repo/releases/download"
+  local name="eza_x86_64-unknown-linux-gnu.tar.gz"
+  local dest="/tmp/$name"
+  run "curl -fsSLo $dest $d_url/$ver/$name"
+
+  # 解压缩下载的文件到 /tmp 目录
+  run "tar -xzf $dest -C /tmp"
+
+  # 将二进制文件移动到 /usr/local/bin 目录
+  run "mv /tmp/eza /usr/local/bin/"
+
+  # 清理下载的文件
+  run "rm $dest"
+
+  # 验证安装
+  run "eza --version"
+}
+
+# 安装 fzf
+# https://github.com/junegunn/fzf
+install_fzf() {
+  if ! command_exists fzf; then
+    install_fzf_process
+  else
+    # 对比版本号，格式为 `v0.20.8`
+    local version=$(fzf --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
+    version="v$version"
+    local url="https://api.github.com/repos/junegunn/fzf/releases/latest"
+    local new_version=$(curl -s $url | jq -r '.tag_name')
+    if [ "$version" != "$new_version" ]; then
+      log_warn "⚠️ fzf 版本过低: $version, 最新版本: $new_version"
+      install_fzf_process $new_version
+      echo
+      log_success "✔ fzf 更新成功"
+    else
+      log_warn "⚠️ fzf 已安装, 版本: $version"
+    fi
+  fi
+}
+
+install_fzf_process() {
+  # 如果不存在 $1 参数，则调用接口取最新版本号，否则，直接使用参数
+  local repo="junegunn/fzf"
+  local url="https://api.github.com/repos/$repo/releases/latest"
+  local ver=${1:-$(curl -s "$url" | jq -r '.tag_name')}
+  local fmt_ver=$(echo $ver | sed 's/v//')
+
+  # 下载最新版本的二进制文件到 /tmp 目录
+  local d_url="https://github.com/$repo/releases/download"
+  local name="fzf-$fmt_ver-linux_amd64.tar.gz"
+  local dest="/tmp/$name"
+  run "curl -fsSLo $dest $d_url/$ver/$name"
+
+  # 解压缩下载的文件到 /tmp 目录
+  run "tar -xzf $dest -C /tmp"
+
+  # 将二进制文件移动到 /usr/local/bin 目录
+  run "mv /tmp/fzf /usr/local/bin/"
+
+  # 清理下载的文件
+  run "rm $dest"
+
+  # 验证安装
+  run "fzf --version"
+}
+
+# 安装 zoxide
+# https://github.com/ajeetdsouza/zoxide
+install_zoxide() {
+  if ! command_exists fzf; then
+    run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+  else
+    local version=$(zoxide --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
+    version="v$version"
+    local url="https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest"
+    local new_version=$(curl -s $url | jq -r '.tag_name')
+    if [ "$version" != "$new_version" ]; then
+      log_warn "⚠️ zoxide 版本过低: $version, 最新版本: $new_version"
+      run "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+      echo
+      log_success "✔ zoxide 更新成功"
+    else
+      log_warn "⚠️ zoxide 已安装, 版本: $version"
+    fi
+  fi
+}
+
 # 安装 oh-my-zsh
 # Source: https://github.com/ohmyzsh/ohmyzsh
 install_ohmyzsh() {

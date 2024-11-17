@@ -163,9 +163,9 @@ run() {
 
   if $verbose; then
     echo "+ $sh_c '$1'"
-    echo
+    # echo
     $sh_c "$1"
-    echo
+    # echo
   else
     $sh_c "$1" >/dev/null 2>&1
   fi
