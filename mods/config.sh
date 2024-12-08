@@ -262,7 +262,8 @@ install_ohmyzsh() {
     if $dry_run; then run "commands_valid curl git"; else commands_valid curl git; fi
 
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
-    local onmyzsh_url="https://install.ohmyz.sh"
+    local onmyzsh_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    # local onmyzsh_url="https://install.ohmyz.sh"
     run "curl -fsSL $onmyzsh_url | sh -s - -y"
     log_success "✔ oh-my-zsh 安装成功"
 

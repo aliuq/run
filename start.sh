@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Last update: 2024-11-18
+# Last update: 2024-12-09
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/start.sh)
 # sh <(curl -sL https://run.xod.cc)
 
@@ -708,7 +708,8 @@ install_ohmyzsh() {
     if $dry_run; then run "commands_valid curl git"; else commands_valid curl git; fi
 
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
-    local onmyzsh_url="https://install.ohmyz.sh"
+    local onmyzsh_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    # local onmyzsh_url="https://install.ohmyz.sh"
     run "curl -fsSL $onmyzsh_url | sh -s - -y"
     log_success "✔ oh-my-zsh 安装成功"
 

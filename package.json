@@ -1,8 +1,11 @@
 {
-	"dependencies": {
-		"tsx": "^4.19.2"
-	},
-	"devDependencies": {
-		"@types/node": "^22.8.6"
-	}
+  "scripts": {
+    "deploy": "tsx deploy.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.6"
+  }
 }
