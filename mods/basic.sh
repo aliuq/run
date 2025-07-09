@@ -66,11 +66,6 @@ echo_info() {
   echo "网络          : $(cyan_bright "$ip_info")"
 
   $show_system && echo_system_info
-
-  # echo_dividerline
-  # echo "DryRun        : $(cyan_bright ${dry_run})"
-  # echo "Force         : $(cyan_bright ${force})"
-  # echo "Verbose       : $(cyan_bright ${verbose})"
 }
 
 # 显示系统信息
