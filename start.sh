@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Last update: 2024-12-09
+# Last update: 2025-07-09
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/start.sh)
 # sh <(curl -sL https://run.xod.cc)
 
@@ -317,25 +317,33 @@ get_ip() {
   echo $ip
 }
 
+# 设置常见的网络地址
+# 国内服务器通常无法正常访问 Github，这里自动设置为国内镜像地址
 set_network() {
-  GITHUB_URL=${GITHUB_URL:-"https://github.com"}
-  GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
-  GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://github.githubassets.com"}
-  GITHUB_GIST_URL=${GITHUB_GIST_URL:-"https://gist.github.com"}
-  GITHUB_AVATAR_URL=${GITHUB_AVATAR_URL:-"https://avatars.githubusercontent.com"}
-  GITHUB_MEDIA_URL=${GITHUB_MEDIA_URL:-"https://media.githubusercontent.com"}
-  GITHUB_OBJECTS_URL=${GITHUB_OBJECTS_URL:-"https://objects.githubusercontent.com"}
-  GITHUB_CODELOAD_URL=${GITHUB_CODELOAD_URL:-"https://codeload.github.com"}
+  if ! check_network github >/dev/null 2>&1; then
+    GITHUB_URL=${GITHUB_URL:-"https://hub.llll.host"}
+    GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.llll.host"}
+    GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://assets.llll.host"}
+    GITHUB_GIST_URL=${GITHUB_GIST_URL:-"https://gist.llll.host"}
+    GITHUB_AVATAR_URL=${GITHUB_AVATAR_URL:-"https://avatars.llll.host"}
+    GITHUB_MEDIA_URL=${GITHUB_MEDIA_URL:-"https://media.llll.host"}
+    GITHUB_OBJECTS_URL=${GITHUB_OBJECTS_URL:-"https://objects.llll.host"}
+    GITHUB_CODELOAD_URL=${GITHUB_CODELOAD_URL:-"https://download.github.com"}
+  else
+    GITHUB_URL=${GITHUB_URL:-"https://github.com"}
+    GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
+    GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://github.githubassets.com"}
+    GITHUB_GIST_URL=${GITHUB_GIST_URL:-"https://gist.github.com"}
+    GITHUB_AVATAR_URL=${GITHUB_AVATAR_URL:-"https://avatars.githubusercontent.com"}
+    GITHUB_MEDIA_URL=${GITHUB_MEDIA_URL:-"https://media.githubusercontent.com"}
+    GITHUB_OBJECTS_URL=${GITHUB_OBJECTS_URL:-"https://objects.githubusercontent.com"}
+    GITHUB_CODELOAD_URL=${GITHUB_CODELOAD_URL:-"https://codeload.github.com"}
+  fi
 
-  if ! check_network >/dev/null 2>&1; then
-    GITHUB_URL="https://hub.llll.host"
-    GITHUB_RAW_URL="https://raw.llll.host"
-    GITHUB_ASSETS_URL="https://assets.llll.host"
-    GITHUB_GIST_URL="https://gist.llll.host"
-    GITHUB_AVATAR_URL="https://avatars.llll.host"
-    GITHUB_MEDIA_URL="https://media.llll.host"
-    GITHUB_OBJECTS_URL="https://object.llll.host"
-    GITHUB_CODELOAD_URL="https://download.llll.host"
+  if ! check_network google >/dev/null 2>&1; then
+    PROXY_URL=${PROXY_URL:-"https://dl.llll.host/"}
+  else
+    PROXY_URL=${PROXY_URL:-""}
   fi
 }
 
@@ -372,21 +380,31 @@ set_var() {
 
   lsb_dist=$(get_distribution)
   lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
+  current_shell=$(basename "$SHELL")
+
+  current_shell_rc=""
+  if [ "$current_shell" = "bash" ]; then
+    current_shell_rc="$HOME/.bashrc"
+  elif [ "$current_shell" = "zsh" ]; then
+    current_shell_rc="$HOME/.zshrc"
+  fi
 }
 
 set_var
 
 
-BASE_URL="https://raw.githubusercontent.com/aliuq/run/refs/heads/master"
-
 # 更新软件包
+#
 update_packages() {
   log "更新软件包"
   if $force || read_confirm "是否更新软件包? (y/n): "; then
     log "正在更新软件包..."
     case $lsb_dist in
-    ubuntu) run "apt update -y && apt upgrade -y" ;;
-    *) log "$(red "[$lsb_dist] 暂不支持")" ;;
+    ubuntu | debian) run "apt update -y && apt upgrade -y" ;;
+    *)
+      log "$(red "[$lsb_dist] 暂不支持")"
+      exit 1
+      ;;
     esac
 
     log "$(green "软件包更新成功")"
@@ -394,6 +412,7 @@ update_packages() {
 }
 
 # 修改主机名
+#
 change_hostname() {
   log "修改主机名称"
 
@@ -409,7 +428,7 @@ change_hostname() {
 }
 
 # 修改 ssh 端口
-
+#
 change_ssh_port() {
   log "修改 SSH 端口"
 
@@ -428,7 +447,7 @@ change_ssh_port() {
     run "sed -i '/^#\?Port /c\Port $new_port' /etc/ssh/sshd_config"
 
     case $lsb_dist in
-    ubuntu) run "systemctl restart ssh" ;;
+    ubuntu | debian) run "systemctl restart ssh" ;;
     centos) run "systemctl restart sshd" ;;
     *) log "$(red "[$lsb_dist] 暂不支持")" ;;
     esac
@@ -444,14 +463,16 @@ change_ssh_port() {
 }
 
 
-install_zsh_from_ubuntu() {
+# 安装 zsh
+#
+install_zsh_from_apt() {
   local zsh_version=$(read_input "请输入 zsh 版本(5.9): " 5.9)
   # local mirror_url=$(read_confirm_and_input "是否使用 mirror, 结尾要有斜杠/ (y/n): " "https://dl.llll.host/")
 
   info "==> zsh version: $(cyan $zsh_version)"
   # info "== mirror  url: $(cyan $mirror_url)"
 
-  if $dry_run; then run "commands_valid curl tar"; else commands_valid curl tar; fi
+  if $dry_run; then run "commands_valid tar"; else commands_valid tar; fi
 
   local url="https://sourceforge.net/projects/zsh/files/zsh/$zsh_version/zsh-$zsh_version.tar.xz/download"
   echo "==> 开始解析: $url"
@@ -476,18 +497,19 @@ install_zsh_from_ubuntu() {
 }
 
 # 安装 zsh
+#
 install_zsh() {
   log "安装 zsh"
 
   if command_exists zsh; then
     if ! $dry_run && read_confirm "zsh 已安装，是否卸载 zsh? (y/n): "; then
       case $lsb_dist in
-      ubuntu) run "apt remove -y zsh" ;;
+      ubuntu | debian) run "apt remove -y zsh" ;;
       *) log "$(red "[$lsb_dist] 暂不支持")" ;;
       esac
     else
       log "$(yellow "zsh 已安装, Skipping...")"
-      return
+      exit 0
     fi
   fi
 
@@ -498,12 +520,10 @@ install_zsh() {
     log "正在安装中，请稍后……"
 
     case "$lsb_dist" in
-    ubuntu)
+    ubuntu | debian)
       case "$install_type" in
-      1)
-        run "apt update -y && apt install -y zsh"
-        ;;
-      2) install_zsh_from_ubuntu ;;
+      1) run "apt update -y && apt install -y zsh" ;;
+      2) install_zsh_from_apt ;;
       *)
         log "$(red "错误选项: $install_type")"
         exit 0
@@ -516,20 +536,23 @@ install_zsh() {
       ;;
     esac
 
-    # if $dry_run; then run "chsh -s $(which zsh)"; else sudo chsh -s $(which zsh); fi
-    run "sudo chsh -s $(which zsh)"
     if [ "$user" != 'root' ]; then
+      run "chsh -s $(which zsh)"
       echo
       yellow "⚠️ 当前用户为 $user，设置默认终端可能失败，请手动执行以下命令:"
       echo
-      cyan "  sudo chsh -s $(which zsh)"
+      cyan "  chsh -s $(which zsh)"
       echo
+    else
+      run "sudo chsh -s $(which zsh)"
     fi
 
     log "$(green "$(which zsh) 安装成功, 请重新打开终端执行后面的命令")"
   fi
 }
 
+# 安装工具
+#
 install_tools() {
   log "准备安装工具"
 
@@ -547,7 +570,7 @@ install_tools() {
   # starship 配置文件
   run "mkdir -p ~/.config"
   if [ ! -f ~/.config/starship.toml ]; then
-    local toml_file="$BASE_URL/files/starship.toml"
+    local toml_file="$REPO_URL/files/starship.toml"
     local dest_file="~/.config/starship.toml"
     run "curl -fsSL $toml_file > $dest_file"
     log_success "✔ starship 配置文件已生成"
@@ -571,9 +594,6 @@ install_basic_tools() {
   install_zoxide
 
   log_success "基础工具安装完成"
-  echo "\n执行下面命令以启用插件\n"
-  cyan "  omz plugin enable eza fzf zoxide"
-  echo
 }
 
 # 安装 eza
@@ -585,7 +605,7 @@ install_eza() {
   else
     # 对比版本号，格式为 `v0.20.8`
     local version=$(eza --version | grep -oP '\Kv[0-9]+\.[0-9]+\.[0-9]+')
-    local url="https://github.com/eza-community/eza/releases"
+    local url="$GITHUB_URL/eza-community/eza/releases"
     local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
     new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
@@ -602,11 +622,11 @@ install_eza() {
 install_eza_process() {
   # 如果不存在 $1 参数，则调用接口取最新版本号，否则，直接使用参数
   local repo="eza-community/eza"
-  local url="https://api.github.com/repos/$repo/releases/latest"
+  local url="${PROXY_URL}https://api.github.com/repos/$repo/releases/latest"
   local ver=${1:-$(curl -s "$url" | jq -r '.tag_name')}
 
   # 下载最新版本的二进制文件到 /tmp 目录
-  local d_url="https://github.com/$repo/releases/download"
+  local d_url="$GITHUB_URL/$repo/releases/download"
   local name="eza_x86_64-unknown-linux-gnu.tar.gz"
   local dest="/tmp/$name"
   run "curl -fsSLo $dest $d_url/$ver/$name"
@@ -634,7 +654,7 @@ install_fzf() {
     # 对比版本号，格式为 `v0.20.8`
     local version=$(fzf --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
     version="v$version"
-    local url="https://github.com/junegunn/fzf/releases"
+    local url="$GITHUB_URL/junegunn/fzf/releases"
     local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
     new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
@@ -651,12 +671,12 @@ install_fzf() {
 install_fzf_process() {
   # 如果不存在 $1 参数，则调用接口取最新版本号，否则，直接使用参数
   local repo="junegunn/fzf"
-  local url="https://api.github.com/repos/$repo/releases/latest"
+  local url="${PROXY_URL}https://api.github.com/repos/$repo/releases/latest"
   local ver=${1:-$(curl -s "$url" | jq -r '.tag_name')}
   local fmt_ver=$(echo $ver | sed 's/v//')
 
   # 下载最新版本的二进制文件到 /tmp 目录
-  local d_url="https://github.com/$repo/releases/download"
+  local d_url="$GITHUB_URL/$repo/releases/download"
   local name="fzf-$fmt_ver-linux_amd64.tar.gz"
   local dest="/tmp/$name"
   run "curl -fsSLo $dest $d_url/$ver/$name"
@@ -677,7 +697,7 @@ install_fzf_process() {
 # 安装 zoxide
 # https://github.com/ajeetdsouza/zoxide
 install_zoxide() {
-  local install_url="https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
+  local install_url="$GITHUB_RAW_URL/ajeetdsouza/zoxide/main/install.sh"
   local save_path="/usr/local/bin"
   if ! command_exists zoxide; then
     run "curl -sSfL $install_url | sh -s - --bin-dir=$save_path"
@@ -685,7 +705,7 @@ install_zoxide() {
   else
     local version=$(zoxide --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
     version="v$version"
-    local url="https://github.com/ajeetdsouza/zoxide/releases"
+    local url="$GITHUB_URL/ajeetdsouza/zoxide/releases"
     local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
     new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
@@ -708,9 +728,10 @@ install_ohmyzsh() {
     if $dry_run; then run "commands_valid curl git"; else commands_valid curl git; fi
 
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
-    local onmyzsh_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    local onmyzsh_url="$GITHUB_RAW_URL/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    local remote_env="$GITHUB_URL/ohmyzsh/ohmyzsh.git"
     # local onmyzsh_url="https://install.ohmyz.sh"
-    run "curl -fsSL $onmyzsh_url | sh -s - -y"
+    run "REMOTE=$remote_env curl -fsSL $onmyzsh_url | sh -s - -y"
     log_success "✔ oh-my-zsh 安装成功"
 
     # zsh-users 社区插件，其中有几个常用的插件，值得推荐
@@ -763,7 +784,7 @@ install_ohmyzsh() {
 
     # 添加自定义配置
     if [ ! -f ~/.myrc ]; then
-      local myrc_file="$BASE_URL/files/.myrc"
+      local myrc_file="$REPO_URL/files/.myrc"
       local dest_file="~/.myrc"
       run "curl -fsSL $myrc_file > $dest_file"
       # 判断 ~/.zshrc 中是否已经包含了 .myrc 文件
@@ -889,29 +910,53 @@ install_fnm() {
   echo
   echo "$(cyan fnm) 是一个使用 rust 构建的 Node.js 版本管理工具, 适用于.node-version和.nvmrc文件"
   echo
-  echo "Source: $(cyan "https://github.com/Schniz/fnm")"
+  echo "Repository: $(cyan "https://github.com/Schniz/fnm")"
+  echo "Source: $(cyan "https://github.com/Schniz/fnm/blob/master/.ci/install.sh")"
   tput sgr0
+
+  if [ "$current_shell" != "bash" ] && [ "$current_shell" != "zsh" ]; then
+    red "当前 shell 仅支持 bash 和 zsh"
+    exit 1
+  fi
 
   if $force || read_confirm "是否安装 fnm? (y/n): "; then
     command_exists curl || run "apt update -y && apt install -y curl"
     command_exists unzip || run "apt update -y && apt install -y unzip"
 
-    case $lsb_dist in
-    ubuntu)
-      run "curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir $HOME/.fnm --skip-shell"
-      if ! grep -q "# fnm start" ~/.zshrc; then
-        cat <<'EOF' >>~/.zshrc
-# fnm start
-FNM_PATH="$HOME/.fnm"
-if [ -d "$FNM_PATH" ]; then
-  export PATH="$FNM_PATH:$PATH"
-  eval "`fnm env --use-on-cd --shell zsh`"
-  eval "`fnm completions --shell zsh`"
-fi
-EOF
-      fi
-      ;;
-    esac
+    # 安装脚本: https://github.com/Schniz/fnm/blob/master/.ci/install.sh
+    # 由于脚本存在中存在固定的 https://github.com，需要通过先下载到本地，进行替换
+    local tmpPath="/tmp/fnm-install.sh"
+
+    run "curl -fsSL \"${PROXY_URL}https://fnm.vercel.app/install\" -o $tmpPath"
+    # 替换脚本中的 https://github.com 为代理地址 $PROXY_URL
+    run "sed -i 's|https://github.com|$GITHUB_URL|g' $tmpPath"
+    run "bash $tmpPath --install-dir $HOME/.fnm --skip-shell"
+    run "chmod +x $HOME/.fnm/fnm"
+
+    # 判断终端配置文件中是否已经包含 fnm 的配置
+    if ! grep -q "# fnm" $current_shell_rc && ! $dry_run; then
+      log "Installing for $current_shell. Appending the following to $current_shell_rc:"
+
+      {
+        echo ''
+        echo '# fnm'
+        echo 'FNM_PATH="$HOME/.fnm"'
+        echo 'if [ -d "$FNM_PATH" ]; then'
+        echo '  export PATH="$FNM_PATH:$PATH"'
+        echo '  eval "$(fnm env --use-on-cd --shell '$current_shell')"'
+        echo '  eval "$(fnm completions --shell '$current_shell')"'
+        echo 'fi'
+      } | tee -a "$current_shell_rc"
+    fi
+
+    run "rm -f $tmpPath"
+
+    if ! $dry_run; then
+      echo ""
+      echo $(green "fnm 安装完成")$(gray ", 请重新打开终端或运行")$(cyan " source $current_shell_rc ")$(gray "使配置生效, 如果出现以下错误: ")
+      red "\n  error: Can't download the requested binary: Permission denied (os error 13)\n"
+      echo $(gray "这是因为还没有安装任何一个版本，请尝试运行")$(cyan " fnm install --lts ")$(gray "进行手动安装")
+    fi
   fi
 }
 
@@ -937,23 +982,15 @@ if $help; then
 fi
 
 do_prepare() {
-  info "准备脚本开发环境"
-  do_prepare_apt curl
-  do_prepare_apt jq
-  info "脚本开发环境准备完毕"
-}
-
-do_prepare_apt() {
-  local cmd=$1
-  tput sc
-  info "$(cyan "检查 $cmd 命令……")"
-  if ! command_exists $cmd; then
-    run "apt update -y && apt install -y $cmd"
-    tput rc && tput ed
-    log_success "✔ $cmd 安装成功"
-  else
-    tput rc && tput ed
-    log_warn "⚠️ $cmd 已安装"
+  if ! command_exists curl; then
+    red "curl 命令未安装, 请先安装 curl\n"
+    green "apt update -y && apt install -y curl"
+    exit 1
+  fi
+  if ! command_exists jq; then
+    red "jq 命令未安装, 请先安装 jq\n"
+    green "apt update -y && apt install -y jq"
+    exit 1
   fi
 }
 
@@ -992,6 +1029,11 @@ echo_info() {
   echo "网络          : $(cyan_bright "$ip_info")"
 
   $show_system && echo_system_info
+
+  # echo_dividerline
+  # echo "DryRun        : $(cyan_bright ${dry_run})"
+  # echo "Force         : $(cyan_bright ${force})"
+  # echo "Verbose       : $(cyan_bright ${verbose})"
 }
 
 # 显示系统信息
