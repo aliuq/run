@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Last update: 2025-07-09 16:11:55
+# Last update: 2025-07-09 16:30:20
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/start.sh)
 # sh <(curl -sL https://run.xod.cc)
 #
@@ -566,8 +566,10 @@ install_tools() {
 
   # 安装 starship
   if ! command_exists starship; then
-    local starship_url="https://starship.rs/install.sh"
-    run "curl -sS $starship_url | sh -s -- -y"
+    local starship_url="${PROXY_URL}https://starship.rs/install.sh"
+    local starship_repo="$GITHUB_URL/starship/starship/releases"
+
+    run "curl -sS $starship_url | sh -s -- -y --base-url=$starship_repo"
     log_success "✔ starship 安装成功"
   else
     log_warn "⚠️ starship 已安装"
