@@ -6,7 +6,15 @@ const tplPath = `${dir}/tpls/start.sh.tpl`
 const tpl = fs.readFileSync(tplPath, 'utf-8')
 
 const newContent = renderTemplate(tpl, {
-  date: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().substring(0, 10),
+  date: new Date(Date.now()).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).replace(/\//g, '-').replace(/\b(\d)\b/g, '0$1')
 })
 
 fs.writeFileSync(`${dir}/start.sh`, newContent)
