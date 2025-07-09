@@ -13,3 +13,5 @@ sh <(curl -sL https://sh.xod.cc) --use-proxy
 ```
 
 _非国内服务器访问 https://sh.xod.cc 大概率会被 Cloudflare 策略拦截_
+
+![ScreenShot 1](./screenshot/1.png)
