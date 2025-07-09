@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Last update: 2025-07-09 15:18:43
+# Last update: 2025-07-09 15:35:30
 # sh <(curl -sL https://raw.githubusercontent.com/aliuq/run/refs/heads/master/start.sh)
 # sh <(curl -sL https://run.xod.cc)
 #
@@ -28,6 +28,7 @@ verbose=false
 force=false
 help=false
 dry_run=false
+use_proxy=false
 
 remaining_args=""
 
@@ -39,6 +40,8 @@ for arg in "$@"; do
   --force=*) force="${arg#*=}" ;;
   --dry-run) dry_run=true ;;
   --dry-run=*) dry_run="${arg#*=}" ;;
+  --use-proxy) use_proxy=true ;;
+  --use-proxy=*) use_proxy="${arg#*=}" ;;
   --help | -[hH]) help=true ;;
   *) remaining_args="$remaining_args $arg" ;;
   esac
@@ -291,7 +294,7 @@ check_network() {
 
   case "$name" in
   [gG]oogle) url="https://www.google.com/favicon.ico?_=$timestamp" ;;
-  [gG]ithub) url="https://github.com/favicon.ico?_=$timestamp" ;;
+  [gG]ithub) url="https://raw.githubusercontent.com/aliuq/run/refs/heads/master/start.sh?_=$timestamp" ;;
   [cC]loudflare) url="https://www.cloudflare.com/favicon.ico?_=$timestamp" ;;
   esac
 
@@ -323,7 +326,7 @@ get_ip() {
 # 设置常见的网络地址
 # 国内服务器通常无法正常访问 Github，这里自动设置为国内镜像地址
 set_network() {
-  if ! check_network github >/dev/null 2>&1; then
+  if ! check_network github >/dev/null 2>&1 || $use_proxy; then
     GITHUB_URL=${GITHUB_URL:-"https://hub.llll.host"}
     GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.llll.host"}
     GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://assets.llll.host"}
@@ -1032,11 +1035,6 @@ echo_info() {
   echo "网络          : $(cyan_bright "$ip_info")"
 
   $show_system && echo_system_info
-
-  # echo_dividerline
-  # echo "DryRun        : $(cyan_bright ${dry_run})"
-  # echo "Force         : $(cyan_bright ${force})"
-  # echo "Verbose       : $(cyan_bright ${verbose})"
 }
 
 # 显示系统信息
