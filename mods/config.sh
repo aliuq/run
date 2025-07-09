@@ -1,11 +1,13 @@
-install_zsh_from_ubuntu() {
+# 安装 zsh
+#
+install_zsh_from_apt() {
   local zsh_version=$(read_input "请输入 zsh 版本(5.9): " 5.9)
   # local mirror_url=$(read_confirm_and_input "是否使用 mirror, 结尾要有斜杠/ (y/n): " "https://dl.llll.host/")
 
   info "==> zsh version: $(cyan $zsh_version)"
   # info "== mirror  url: $(cyan $mirror_url)"
 
-  if $dry_run; then run "commands_valid curl tar"; else commands_valid curl tar; fi
+  if $dry_run; then run "commands_valid tar"; else commands_valid tar; fi
 
   local url="https://sourceforge.net/projects/zsh/files/zsh/$zsh_version/zsh-$zsh_version.tar.xz/download"
   echo "==> 开始解析: $url"
@@ -30,18 +32,19 @@ install_zsh_from_ubuntu() {
 }
 
 # 安装 zsh
+#
 install_zsh() {
   log "安装 zsh"
 
   if command_exists zsh; then
     if ! $dry_run && read_confirm "zsh 已安装，是否卸载 zsh? (y/n): "; then
       case $lsb_dist in
-      ubuntu) run "apt remove -y zsh" ;;
+      ubuntu | debian) run "apt remove -y zsh" ;;
       *) log "$(red "[$lsb_dist] 暂不支持")" ;;
       esac
     else
       log "$(yellow "zsh 已安装, Skipping...")"
-      return
+      exit 0
     fi
   fi
 
@@ -52,12 +55,10 @@ install_zsh() {
     log "正在安装中，请稍后……"
 
     case "$lsb_dist" in
-    ubuntu)
+    ubuntu | debian)
       case "$install_type" in
-      1)
-        run "apt update -y && apt install -y zsh"
-        ;;
-      2) install_zsh_from_ubuntu ;;
+      1) run "apt update -y && apt install -y zsh" ;;
+      2) install_zsh_from_apt ;;
       *)
         log "$(red "错误选项: $install_type")"
         exit 0
@@ -70,20 +71,23 @@ install_zsh() {
       ;;
     esac
 
-    # if $dry_run; then run "chsh -s $(which zsh)"; else sudo chsh -s $(which zsh); fi
-    run "sudo chsh -s $(which zsh)"
     if [ "$user" != 'root' ]; then
+      run "chsh -s $(which zsh)"
       echo
       yellow "⚠️ 当前用户为 $user，设置默认终端可能失败，请手动执行以下命令:"
       echo
-      cyan "  sudo chsh -s $(which zsh)"
+      cyan "  chsh -s $(which zsh)"
       echo
+    else
+      run "sudo chsh -s $(which zsh)"
     fi
 
     log "$(green "$(which zsh) 安装成功, 请重新打开终端执行后面的命令")"
   fi
 }
 
+# 安装工具
+#
 install_tools() {
   log "准备安装工具"
 
@@ -101,7 +105,7 @@ install_tools() {
   # starship 配置文件
   run "mkdir -p ~/.config"
   if [ ! -f ~/.config/starship.toml ]; then
-    local toml_file="$BASE_URL/files/starship.toml"
+    local toml_file="$REPO_URL/files/starship.toml"
     local dest_file="~/.config/starship.toml"
     run "curl -fsSL $toml_file > $dest_file"
     log_success "✔ starship 配置文件已生成"
@@ -125,9 +129,6 @@ install_basic_tools() {
   install_zoxide
 
   log_success "基础工具安装完成"
-  echo "\n执行下面命令以启用插件\n"
-  cyan "  omz plugin enable eza fzf zoxide"
-  echo
 }
 
 # 安装 eza
@@ -139,7 +140,7 @@ install_eza() {
   else
     # 对比版本号，格式为 `v0.20.8`
     local version=$(eza --version | grep -oP '\Kv[0-9]+\.[0-9]+\.[0-9]+')
-    local url="https://github.com/eza-community/eza/releases"
+    local url="$GITHUB_URL/eza-community/eza/releases"
     local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
     new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
@@ -156,11 +157,11 @@ install_eza() {
 install_eza_process() {
   # 如果不存在 $1 参数，则调用接口取最新版本号，否则，直接使用参数
   local repo="eza-community/eza"
-  local url="https://api.github.com/repos/$repo/releases/latest"
+  local url="${PROXY_URL}https://api.github.com/repos/$repo/releases/latest"
   local ver=${1:-$(curl -s "$url" | jq -r '.tag_name')}
 
   # 下载最新版本的二进制文件到 /tmp 目录
-  local d_url="https://github.com/$repo/releases/download"
+  local d_url="$GITHUB_URL/$repo/releases/download"
   local name="eza_x86_64-unknown-linux-gnu.tar.gz"
   local dest="/tmp/$name"
   run "curl -fsSLo $dest $d_url/$ver/$name"
@@ -188,7 +189,7 @@ install_fzf() {
     # 对比版本号，格式为 `v0.20.8`
     local version=$(fzf --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
     version="v$version"
-    local url="https://github.com/junegunn/fzf/releases"
+    local url="$GITHUB_URL/junegunn/fzf/releases"
     local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
     new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
@@ -205,12 +206,12 @@ install_fzf() {
 install_fzf_process() {
   # 如果不存在 $1 参数，则调用接口取最新版本号，否则，直接使用参数
   local repo="junegunn/fzf"
-  local url="https://api.github.com/repos/$repo/releases/latest"
+  local url="${PROXY_URL}https://api.github.com/repos/$repo/releases/latest"
   local ver=${1:-$(curl -s "$url" | jq -r '.tag_name')}
   local fmt_ver=$(echo $ver | sed 's/v//')
 
   # 下载最新版本的二进制文件到 /tmp 目录
-  local d_url="https://github.com/$repo/releases/download"
+  local d_url="$GITHUB_URL/$repo/releases/download"
   local name="fzf-$fmt_ver-linux_amd64.tar.gz"
   local dest="/tmp/$name"
   run "curl -fsSLo $dest $d_url/$ver/$name"
@@ -231,7 +232,7 @@ install_fzf_process() {
 # 安装 zoxide
 # https://github.com/ajeetdsouza/zoxide
 install_zoxide() {
-  local install_url="https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
+  local install_url="$GITHUB_RAW_URL/ajeetdsouza/zoxide/main/install.sh"
   local save_path="/usr/local/bin"
   if ! command_exists zoxide; then
     run "curl -sSfL $install_url | sh -s - --bin-dir=$save_path"
@@ -239,7 +240,7 @@ install_zoxide() {
   else
     local version=$(zoxide --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
     version="v$version"
-    local url="https://github.com/ajeetdsouza/zoxide/releases"
+    local url="$GITHUB_URL/ajeetdsouza/zoxide/releases"
     local new_version=$(curl -s $url | grep -oP '(?<=tag/v)[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
     new_version="v$new_version"
     if [ "$version" != "$new_version" ]; then
@@ -262,9 +263,10 @@ install_ohmyzsh() {
     if $dry_run; then run "commands_valid curl git"; else commands_valid curl git; fi
 
     local ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
-    local onmyzsh_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    local onmyzsh_url="$GITHUB_RAW_URL/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    local remote_env="$GITHUB_URL/ohmyzsh/ohmyzsh.git"
     # local onmyzsh_url="https://install.ohmyz.sh"
-    run "curl -fsSL $onmyzsh_url | sh -s - -y"
+    run "REMOTE=$remote_env curl -fsSL $onmyzsh_url | sh -s - -y"
     log_success "✔ oh-my-zsh 安装成功"
 
     # zsh-users 社区插件，其中有几个常用的插件，值得推荐
@@ -317,7 +319,7 @@ install_ohmyzsh() {
 
     # 添加自定义配置
     if [ ! -f ~/.myrc ]; then
-      local myrc_file="$BASE_URL/files/.myrc"
+      local myrc_file="$REPO_URL/files/.myrc"
       local dest_file="~/.myrc"
       run "curl -fsSL $myrc_file > $dest_file"
       # 判断 ~/.zshrc 中是否已经包含了 .myrc 文件

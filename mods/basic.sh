@@ -19,23 +19,15 @@ if $help; then
 fi
 
 do_prepare() {
-  info "准备脚本开发环境"
-  do_prepare_apt curl
-  do_prepare_apt jq
-  info "脚本开发环境准备完毕"
-}
-
-do_prepare_apt() {
-  local cmd=$1
-  tput sc
-  info "$(cyan "检查 $cmd 命令……")"
-  if ! command_exists $cmd; then
-    run "apt update -y && apt install -y $cmd"
-    tput rc && tput ed
-    log_success "✔ $cmd 安装成功"
-  else
-    tput rc && tput ed
-    log_warn "⚠️ $cmd 已安装"
+  if ! command_exists curl; then
+    red "curl 命令未安装, 请先安装 curl\n"
+    green "apt update -y && apt install -y curl"
+    exit 1
+  fi
+  if ! command_exists jq; then
+    red "jq 命令未安装, 请先安装 jq\n"
+    green "apt update -y && apt install -y jq"
+    exit 1
   fi
 }
 
@@ -74,6 +66,11 @@ echo_info() {
   echo "网络          : $(cyan_bright "$ip_info")"
 
   $show_system && echo_system_info
+
+  # echo_dividerline
+  # echo "DryRun        : $(cyan_bright ${dry_run})"
+  # echo "Force         : $(cyan_bright ${force})"
+  # echo "Verbose       : $(cyan_bright ${verbose})"
 }
 
 # 显示系统信息

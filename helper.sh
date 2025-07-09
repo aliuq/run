@@ -311,25 +311,33 @@ get_ip() {
   echo $ip
 }
 
+# 设置常见的网络地址
+# 国内服务器通常无法正常访问 Github，这里自动设置为国内镜像地址
 set_network() {
-  GITHUB_URL=${GITHUB_URL:-"https://github.com"}
-  GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
-  GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://github.githubassets.com"}
-  GITHUB_GIST_URL=${GITHUB_GIST_URL:-"https://gist.github.com"}
-  GITHUB_AVATAR_URL=${GITHUB_AVATAR_URL:-"https://avatars.githubusercontent.com"}
-  GITHUB_MEDIA_URL=${GITHUB_MEDIA_URL:-"https://media.githubusercontent.com"}
-  GITHUB_OBJECTS_URL=${GITHUB_OBJECTS_URL:-"https://objects.githubusercontent.com"}
-  GITHUB_CODELOAD_URL=${GITHUB_CODELOAD_URL:-"https://codeload.github.com"}
+  if ! check_network github >/dev/null 2>&1; then
+    GITHUB_URL=${GITHUB_URL:-"https://hub.llll.host"}
+    GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.llll.host"}
+    GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://assets.llll.host"}
+    GITHUB_GIST_URL=${GITHUB_GIST_URL:-"https://gist.llll.host"}
+    GITHUB_AVATAR_URL=${GITHUB_AVATAR_URL:-"https://avatars.llll.host"}
+    GITHUB_MEDIA_URL=${GITHUB_MEDIA_URL:-"https://media.llll.host"}
+    GITHUB_OBJECTS_URL=${GITHUB_OBJECTS_URL:-"https://objects.llll.host"}
+    GITHUB_CODELOAD_URL=${GITHUB_CODELOAD_URL:-"https://download.github.com"}
+  else
+    GITHUB_URL=${GITHUB_URL:-"https://github.com"}
+    GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
+    GITHUB_ASSETS_URL=${GITHUB_ASSETS_URL:-"https://github.githubassets.com"}
+    GITHUB_GIST_URL=${GITHUB_GIST_URL:-"https://gist.github.com"}
+    GITHUB_AVATAR_URL=${GITHUB_AVATAR_URL:-"https://avatars.githubusercontent.com"}
+    GITHUB_MEDIA_URL=${GITHUB_MEDIA_URL:-"https://media.githubusercontent.com"}
+    GITHUB_OBJECTS_URL=${GITHUB_OBJECTS_URL:-"https://objects.githubusercontent.com"}
+    GITHUB_CODELOAD_URL=${GITHUB_CODELOAD_URL:-"https://codeload.github.com"}
+  fi
 
-  if ! check_network >/dev/null 2>&1; then
-    GITHUB_URL="https://hub.llll.host"
-    GITHUB_RAW_URL="https://raw.llll.host"
-    GITHUB_ASSETS_URL="https://assets.llll.host"
-    GITHUB_GIST_URL="https://gist.llll.host"
-    GITHUB_AVATAR_URL="https://avatars.llll.host"
-    GITHUB_MEDIA_URL="https://media.llll.host"
-    GITHUB_OBJECTS_URL="https://object.llll.host"
-    GITHUB_CODELOAD_URL="https://download.llll.host"
+  if ! check_network google >/dev/null 2>&1; then
+    PROXY_URL=${PROXY_URL:-"https://dl.llll.host/"}
+  else
+    PROXY_URL=${PROXY_URL:-""}
   fi
 }
 
@@ -366,6 +374,14 @@ set_var() {
 
   lsb_dist=$(get_distribution)
   lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
+  current_shell=$(basename "$SHELL")
+
+  current_shell_rc=""
+  if [ "$current_shell" = "bash" ]; then
+    current_shell_rc="$HOME/.bashrc"
+  elif [ "$current_shell" = "zsh" ]; then
+    current_shell_rc="$HOME/.zshrc"
+  fi
 }
 
 set_var

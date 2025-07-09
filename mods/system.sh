@@ -1,11 +1,15 @@
 # 更新软件包
+#
 update_packages() {
   log "更新软件包"
   if $force || read_confirm "是否更新软件包? (y/n): "; then
     log "正在更新软件包..."
     case $lsb_dist in
-    ubuntu) run "apt update -y && apt upgrade -y" ;;
-    *) log "$(red "[$lsb_dist] 暂不支持")" ;;
+    ubuntu | debian) run "apt update -y && apt upgrade -y" ;;
+    *)
+      log "$(red "[$lsb_dist] 暂不支持")"
+      exit 1
+      ;;
     esac
 
     log "$(green "软件包更新成功")"
@@ -13,6 +17,7 @@ update_packages() {
 }
 
 # 修改主机名
+#
 change_hostname() {
   log "修改主机名称"
 
@@ -28,7 +33,7 @@ change_hostname() {
 }
 
 # 修改 ssh 端口
-
+#
 change_ssh_port() {
   log "修改 SSH 端口"
 
@@ -47,7 +52,7 @@ change_ssh_port() {
     run "sed -i '/^#\?Port /c\Port $new_port' /etc/ssh/sshd_config"
 
     case $lsb_dist in
-    ubuntu) run "systemctl restart ssh" ;;
+    ubuntu | debian) run "systemctl restart ssh" ;;
     centos) run "systemctl restart sshd" ;;
     *) log "$(red "[$lsb_dist] 暂不支持")" ;;
     esac
