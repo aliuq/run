@@ -232,11 +232,21 @@ install_fzf_process() {
 # 安装 zoxide
 # https://github.com/ajeetdsouza/zoxide
 install_zoxide() {
-  local install_url="$GITHUB_RAW_URL/ajeetdsouza/zoxide/main/install.sh"
+  local install_url="$GITHUB_RAW_URL/ajeetdsouza/zoxide/refs/heads/main/install.sh"
   local save_path="/usr/local/bin"
   if ! command_exists zoxide; then
-    run "curl -sSfL $install_url | sh -s - --bin-dir=$save_path"
-    log_success "✅ zoxide 安装成功"
+    # 脚本内存在 https://api.github.com，可能无法访问，下载到本地进行替换
+    local tmpPath="/tmp/zoxide-install.sh"
+
+    run "curl -fsSL \"$install_url\" -o $tmpPath"
+    # 替换脚本中的 https://github.com 为代理地址 $PROXY_URL
+    run "sed -i 's|https://api.github.com|${PROXY_URL}https://api.github.com|g' $tmpPath"
+    run "sh $tmpPath --bin-dir=$save_path"
+    run "rm -f $tmpPath"
+
+    if ! $dry_run; then
+      log_success "✅ zoxide 安装成功"
+    fi
   else
     local version=$(zoxide --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+')
     version="v$version"
